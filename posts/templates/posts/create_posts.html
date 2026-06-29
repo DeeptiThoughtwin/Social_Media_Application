@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+<div class="max-w-xl mx-auto mt-10">
+    <div class="bg-white shadow-lg rounded-2xl p-6">
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
+            Create New Post
+        </h2>
+        <form method="POST" enctype="multipart/form-data" class="space-y-5">
+            {% csrf_token %}
+            <div>
+                <label class="text-sm font-medium text-gray-600">Caption</label>
+                <textarea
+                    name="caption"
+                    rows="4"
+                    placeholder="Write something amazing..."
+                    class="w-full mt-1 border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                ></textarea>
+            </div>
+            <div>
+                <label class="text-sm font-medium text-gray-600">
+                    Upload Images or Videos
+                </label>
+
+                <div class="mt-2 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-pink-400 transition">
+                    <input
+                        type="file"
+                        name="files"
+                        multiple
+                        accept="image/*,video/*"
+                        class="w-full text-sm"
+                    >
+                </div>
+            </div>
+            <button
+                type="submit"
+                class="w-full bg-pink-500 text-white py-2 rounded-xl font-semibold hover:bg-pink-600 transition">
+                Post
+            </button>
+        </form>
+    </div>
+</div>
+
+
+
+{% endblock %}

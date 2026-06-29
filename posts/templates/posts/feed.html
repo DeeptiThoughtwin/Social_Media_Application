@@ -1,0 +1,47 @@
+
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+    <h2 class="text-xl font-bold mb-4 text-center">Feed</h2>
+</br>
+
+
+    {% for post in posts %}
+
+    <div class="bg-white rounded-lg shadow mb-6 p-4 ">
+
+       
+        <div class="flex items-center gap-3 mb-3 ">
+            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center"></div>
+            <p class="font-semibold">{{ post.user.username }}</p>
+            <button
+                type="submit"
+                class="bg-blue-400 text-white py-1 px-4 ml-77 rounded-xl font-semibold hover:bg-blue-600 transition">
+                Follow
+            </button>
+
+        </div>
+
+
+        {% for m in post.media.all %}
+
+            {% if m.media_type == "image" %}
+                <img src="{{ m.file.url }}" class="  rounded-lg aspect-square w-140 max-w-[1080px] overflow-hidden mb-3">
+            {% else %}
+                <video controls class="rounded-lg rounded-lg aspect-square w-140 max-w-[1080px] overflow-hidden mb-3">
+                    <source src="{{ m.file.url }}">
+                </video>
+            {% endif %}
+
+        {% endfor %}
+
+        <p class="text-gray-700">{{ post.caption }}</p>
+
+    </div>
+
+{% endfor %}
+
+{% endblock %}
+
