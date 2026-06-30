@@ -12,21 +12,22 @@ from .forms import RegistrationForm,LoginForm,UserUpdateForm,ProfileUpdateForm
 
 @login_required
 def home(request):
-
-    profile, created = Profile.objects.get_or_create(
-        user=request.user
-    )
-
-    return render(request, "home.html", {
-    "profile": profile,
-    "user": request.user
-})
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    posts = Post.objects.all().order_by("-created_at")
+    for post in posts:
+        post.is_following = Follow.objects.filter(follower=request.user,following=post.user).exists()
+    context = {
+        "profile": profile,
+        "posts": posts,
+        "posts_count": Post.objects.filter(user=request.user).count(),
+        "followers_count": Follow.objects.filter(following=request.user).count(),
+        "following_count": Follow.objects.filter(follower=request.user).count(),}
+    return render(request, "home.html", context)
 
 
 
 
 def signup(request):
-
     if request.method == "POST":
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -42,25 +43,20 @@ def signup(request):
 
 
 def login(request):
-
     if request.user.is_authenticated:
         return redirect("home")
-
     if request.method == "POST":
         form = LoginForm(request, data=request.POST)
-
         if form.is_valid():
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password"]
             user = authenticate(request,username=username,password=password)
-
             if user is not None:
                 auth_login(request, user)
                 messages.success(request,f"Welcome back {user.username}")
                 return redirect("home")
     else:
         form = LoginForm()
-
     return render(request,"login.html",{"form": form})
 
 
@@ -78,9 +74,12 @@ def logout(request):
 @login_required
 def profile(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-    posts = Post.objects.filter(user=request.user).order_by('-created_at')
-    context = {"profile": profile,"posts": posts,"posts_count": posts.count(),"followers_count": 0, "following_count": 0}
-    return render(request,"profile/profile.html",context)
+    posts = Post.objects.filter(user=request.user).order_by("-created_at")
+    followers_count = Follow.objects.filter(following=request.user).count()
+    following_count = Follow.objects.filter(follower=request.user).count()
+    context = {"profile": profile,"posts": posts,"posts_count": posts.count(),"followers_count": followers_count,"following_count": following_count}
+    return render(request, "profile/profile.html", context)
+
 
 
 @login_required
@@ -106,18 +105,15 @@ def edit_profile(request):
 
 
 
-
-
+@login_required
 def follow_user(request, user_id):
     user_to_follow = get_object_or_404(User, id=user_id)
-    if not request.user.following.filter(id=user_id).exists():
-        Follow.objects.create(follower=request.user, following=user_to_follow)
-    return redirect('profile')
+    if request.user != user_to_follow:
+        follow, created = Follow.objects.get_or_create(follower=request.user,following=user_to_follow)
+        if not created:
+            follow.delete()
+    return redirect("profile", username=user_to_follow.username)
 
 
 
 
-def unfollow_user(request, user_id):
-    user_to_unfollow = get_object_or_404(User, id=user_id)
-    request.user.following.filter(id=user_id).delete()
-    return redirect('profile')
