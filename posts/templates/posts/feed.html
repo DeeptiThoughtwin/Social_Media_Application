@@ -8,10 +8,10 @@
 
 <div class="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
 
-    <!-- Post Header -->
+    
     <div class="flex justify-between items-center p-4 border-b">
 
-        <!-- User Info -->
+        
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full bg-gray-300"></div>
 
@@ -22,7 +22,7 @@
             </div>
         </div>
 
-        <!-- Follow Button -->
+        
         {% if request.user != post.user %}
             <a href="{% url 'follow_user' post.user.id %}">
                 {% if post.is_following %}
@@ -39,7 +39,7 @@
 
     </div>
 
-    <!-- Post Media -->
+    
     {% for media in post.media.all %}
 
         {% if media.media_type == "image" %}
@@ -52,7 +52,7 @@
 
     {% endfor %}
 
-    <!-- Caption -->
+    
     <div class="p-4">
         <p>
             <span class="font-semibold">{{ post.user.username }}</span>

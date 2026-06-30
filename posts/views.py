@@ -49,22 +49,6 @@ def like_post(request, post_id):
 
 
 
-    # @login_required
-    # def add_comment(request, post_id):
-
-    #     post = get_object_or_404(Post, id=post_id)
-
-    #     if request.method == "POST":
-    #         text = request.POST.get("text")
-
-    #         if text:
-    #             Comment.objects.create(
-    #                 user=request.user,
-    #                 post=post,
-    #                 text=text
-    #             )
-
-    #     return redirect("post_detail", post_id=post.id)
 
 
 

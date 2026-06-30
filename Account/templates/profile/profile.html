@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %} 
 
 {% block content %}
 
@@ -13,7 +14,9 @@
                     <img src="{{ profile.profile_picture.url }}"
                          class="w-44 h-44 rounded-full object-cover border-[5px] border-pink-500 shadow-lg">
                 {% else %}
-                    <img src="https://via.placeholder.com/180"
+                <script>console.log('asdsadsad')</script>script>
+                    <!-- <img src="https://via.placeholder.com/180" -->
+                    <img src="{% static 'images/default.jpg' %}"
                          class="w-44 h-44 rounded-full object-cover border-[5px] border-pink-500 shadow-lg">
                 {% endif %}
             </div>

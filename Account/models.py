@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 class Profile(models.Model):
 
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name="profile")
-    profile_picture = models.ImageField(upload_to="profile_pictures/",default="profile_pictures/default.png")
+    profile_picture = models.ImageField(upload_to="profile_pictures/")
     bio = models.TextField(max_length=300,blank=True)
     website = models.URLField(blank=True)
     location = models.CharField(max_length=100,blank=True)
@@ -20,6 +20,7 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+
 
 
 class Follow(models.Model):

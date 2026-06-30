@@ -7,39 +7,28 @@ from django.contrib.auth.decorators import login_required
 from .models import Profile,Follow
 from .forms import UserUpdateForm, ProfileUpdateForm
 from posts.models import Post
-from .forms import (
-    RegistrationForm,
-    LoginForm,
-    UserUpdateForm,
-    ProfileUpdateForm,
-)
+from .forms import RegistrationForm,LoginForm,UserUpdateForm,ProfileUpdateForm
+from django.contrib.auth.models import User
 
 
 @login_required
 def home(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-
     posts = Post.objects.all().order_by("-created_at")
-
     for post in posts:
         post.is_following = Follow.objects.filter(
             follower=request.user,
             following=post.user
         ).exists()
-
     context = {
         "profile": profile,
         "posts": posts,
         "posts_count": Post.objects.filter(user=request.user).count(),
-        "followers_count": Follow.objects.filter(
-            following=request.user
-        ).count(),
-        "following_count": Follow.objects.filter(
-            follower=request.user
-        ).count(),
-    }
-
+        "followers_count": Follow.objects.filter(following=request.user).count(),
+        "following_count": Follow.objects.filter(follower=request.user).count(),
+        }
     return render(request, "home.html", context)
+
 
 
 def signup(request):
@@ -86,8 +75,8 @@ def login(request):
 @login_required
 def logout(request):
     auth_logout(request)
-    messages.success(request,"You have been logged out.")
-    return redirect("login")
+    messages.success(request, "You have been logged out.")
+    return redirect("login") 
 
 
 
@@ -133,4 +122,6 @@ def follow_user(request, user_id):
         follow, created = Follow.objects.get_or_create(follower=request.user,following=user_to_follow)
         if not created:
             follow.delete()
-    return redirect("profile", username=user_to_follow.username)
+    return redirect("profile")
+
+

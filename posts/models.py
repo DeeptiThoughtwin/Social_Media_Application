@@ -8,7 +8,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.caption[:30] if self.caption else 'No Caption'}"
+        return f"{self.user.username} - {self.caption if self.caption else 'No Caption'}"
 
 
 class PostMedia(models.Model):
