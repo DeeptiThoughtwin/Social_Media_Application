@@ -1,47 +1,73 @@
-
 {% extends 'base.html' %}
-
 
 {% block content %}
 
-    <h2 class="text-xl font-bold mb-4 text-center">Feed</h2>
-</br>
+<h2 class="text-2xl font-bold mb-6">Feed</h2>
 
+{% for post in posts %}
 
-    {% for post in posts %}
+<div class="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
 
-    <div class="bg-white rounded-lg shadow mb-6 p-4 ">
+    <!-- Post Header -->
+    <div class="flex justify-between items-center p-4 border-b">
 
-       
-        <div class="flex items-center gap-3 mb-3 ">
-            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center"></div>
-            <p class="font-semibold">{{ post.user.username }}</p>
-            <button
-                type="submit"
-                class="bg-blue-400 text-white py-1 px-4 ml-77 rounded-xl font-semibold hover:bg-blue-600 transition">
-                Follow
-            </button>
+        <!-- User Info -->
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gray-300"></div>
 
+            <div>
+                <p class="font-semibold">
+                    {{ post.user.username }}
+                </p>
+            </div>
         </div>
 
-
-        {% for m in post.media.all %}
-
-            {% if m.media_type == "image" %}
-                <img src="{{ m.file.url }}" class="  rounded-lg aspect-square w-140 max-w-[1080px] overflow-hidden mb-3">
-            {% else %}
-                <video controls class="rounded-lg rounded-lg aspect-square w-140 max-w-[1080px] overflow-hidden mb-3">
-                    <source src="{{ m.file.url }}">
-                </video>
-            {% endif %}
-
-        {% endfor %}
-
-        <p class="text-gray-700">{{ post.caption }}</p>
+        <!-- Follow Button -->
+        {% if request.user != post.user %}
+            <a href="{% url 'follow_user' post.user.id %}">
+                {% if post.is_following %}
+                    <button class="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400">
+                        Following
+                    </button>
+                {% else %}
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                        Follow
+                    </button>
+                {% endif %}
+            </a>
+        {% endif %}
 
     </div>
+
+    <!-- Post Media -->
+    {% for media in post.media.all %}
+
+        {% if media.media_type == "image" %}
+            <img src="{{ media.file.url }}" class="w-full">
+        {% else %}
+            <video controls class="w-full">
+                <source src="{{ media.file.url }}">
+            </video>
+        {% endif %}
+
+    {% endfor %}
+
+    <!-- Caption -->
+    <div class="p-4">
+        <p>
+            <span class="font-semibold">{{ post.user.username }}</span>
+            {{ post.caption }}
+        </p>
+    </div>
+
+</div>
+
+{% empty %}
+
+<div class="bg-white rounded-lg shadow-md p-6 text-center">
+    <p class="text-gray-500">No posts available.</p>
+</div>
 
 {% endfor %}
 
 {% endblock %}
-
