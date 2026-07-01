@@ -10,7 +10,6 @@ from posts.models import Post
 from .forms import RegistrationForm,LoginForm,UserUpdateForm,ProfileUpdateForm
 from django.contrib.auth.models import User
 
-
 @login_required
 def home(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
@@ -119,9 +118,8 @@ def edit_profile(request):
 def follow_user(request, user_id):
     user_to_follow = get_object_or_404(User, id=user_id)
     if request.user != user_to_follow:
-        follow, created = Follow.objects.get_or_create(follower=request.user,following=user_to_follow)
+        follows, created = Follow.objects.get_or_create(follower=request.user,following=user_to_follow)
         if not created:
-            follow.delete()
+            follows.delete()
     return redirect("profile")
-
 

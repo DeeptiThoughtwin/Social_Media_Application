@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('Account.urls')),
     path('posts/', include('posts.urls')),
+    path('notifications/',include('Notifications.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(

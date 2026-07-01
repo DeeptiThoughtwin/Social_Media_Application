@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "Account.apps.AccountConfig",
     'posts',
+    'Notifications',
 ]
 
 MIDDLEWARE = [
@@ -182,7 +183,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -192,4 +192,4 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 # print(MEDIA_URL)
 # print(MEDIA_ROOT)
-print(STATIC_URL)
+# print(STATIC_URL)
