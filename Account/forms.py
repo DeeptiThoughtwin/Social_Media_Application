@@ -95,7 +95,7 @@ class RegistrationForm(UserCreationForm):
 
         if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", username):
             raise forms.ValidationError(
-                "Username can contain only letters, numbers, and underscores (_)."
+                "Username can contain only letters, numbers, and underscores."
             )
 
         if User.objects.filter(username__iexact=username).exists():
@@ -266,19 +266,13 @@ class UserUpdateForm(forms.ModelForm):
 
         }
 
-
     def clean_email(self):
-
         email = self.cleaned_data["email"]
-
         qs = User.objects.filter(email=email).exclude(pk=self.instance.pk)
-
         if qs.exists():
-
             raise forms.ValidationError(
                 "This email is already in use."
             )
-
         return email
 
 

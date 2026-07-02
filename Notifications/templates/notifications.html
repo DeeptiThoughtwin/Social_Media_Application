@@ -4,21 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notifications</title>
-
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
-
-<div class="max-w-3xl mx-auto mt-10">
-
-   
+<div class="max-w-3xl mx-auto mt-10">  
     <div class="bg-white text-pink-500 text-center rounded-xl shadow-xl p-6 mb-6">
         <h1 class="text-3xl font-bold"> Notifications</h1>
     </div>
-
-
     {% for notification in notifications %}
-
     <div class="bg-white rounded-xl shadow p-5 mb-4 flex justify-between items-center">
         <div>
             {% if notification.notification_type == "like" %}
@@ -28,16 +21,13 @@
                     </span>
                     liked your post.
                 </p>
-
             {% elif notification.notification_type == "comment" %}
-
                 <p class="text-lg">   
                     <span class="font-semibold">
                         {{ notification.sender.username }}
                     </span>
                     commented on your post.
                 </p>
-
             {% elif notification.notification_type == "follow" %}
                 <p class="text-lg">
                     <span class="font-semibold">
@@ -45,15 +35,12 @@
                     </span>
                     started following you.
                 </p>
-
             {% endif %}
-
                 <p class="text-sm text-gray-500 mt-2">
                     {{ notification.created_at }}
                 </p>
         </div>
     </div>
-
     {% empty %}
     <div class="bg-white rounded-xl shadow-md p-10 text-center">
         <h2 class="text-md mb-3">
@@ -62,7 +49,6 @@
     </div>
     {% endfor %}
 </div>
-
   </body>
 </html>
 

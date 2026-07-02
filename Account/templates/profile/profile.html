@@ -5,95 +5,71 @@
 
 <div class="max-w-6xl mx-auto px-4 py-10">
     <div class="bg-white rounded-2xl shadow-md border border-gray-200 p-8">
-
-        <div class="flex flex-col lg:flex-row gap-10">
-
-            
-            <div class="flex justify-center">
+        <div class="flex flex-col lg:flex-row gap-10">           
+           <div class="flex justify-center">
                 {% if profile.profile_picture %}
                     <img src="{{ profile.profile_picture.url }}"
                          class="w-44 h-44 rounded-full object-cover border-[5px] border-pink-500 shadow-lg">
                 {% else %}
-                <script>console.log('asdsadsad')</script>script>
+                <!-- <script>console.log('asdsadsad')</script>script> -->
                     <!-- <img src="https://via.placeholder.com/180" -->
                     <img src="{% static 'images/default.jpg' %}"
                          class="w-44 h-44 rounded-full object-cover border-[5px] border-pink-500 shadow-lg">
                 {% endif %}
-            </div>
-
-            
+            </div>          
             <div class="flex-1">
-
                 <div class="flex flex-wrap items-center gap-4">
                     <h1 class="text-3xl font-semibold">{{ user.username }}</h1>
-
                     <a href="{% url 'edit_profile' %}"
                        class="px-5 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 font-medium transition">
                         Edit Profile
                     </a>
-
                     <button class="text-2xl hover:rotate-90 transition">⚙️</button>
                 </div>
-
                 <div class="grid grid-cols-3 gap-8 mt-8">
                     <div>
                         <h2 class="font-bold text-2xl">{{ posts_count }}</h2>
                         <p class="text-gray-500">Posts</p>
                     </div>
-
                     <div>
                         <h2 class="font-bold text-2xl">{{ followers_count }}</h2>
                         <p class="text-gray-500">Followers</p>
                     </div>
-
                     <div>
                         <h2 class="font-bold text-2xl">{{ following_count }}</h2>
                         <p class="text-gray-500">Following</p>
                     </div>
                 </div>
-
                 <h2 class="mt-8 text-xl font-semibold">
                     {{ user.get_full_name }}
-                </h2>
-
-                
+                </h2>               
                 <p class="mt-3 text-gray-700 whitespace-pre-line">
                     {{ profile.bio }}
-                </p>
-
-                
+                </p>               
                 {% if profile.website %}
                     <a href="{{ profile.website }}" target="_blank"
                        class="text-blue-600 hover:underline font-medium mt-3 inline-block">
                         {{ profile.website }}
                     </a>
-                {% endif %}
-
-                
+                {% endif %}               
                 {% if profile.location %}
                     <p class="mt-2 text-gray-500">
                         {{ profile.location }}
                     </p>
-                {% endif %}
-
-                
+                {% endif %}               
                 <div class="flex gap-3 mt-8">
                     <a href="{% url 'create_post' %}"
-                       class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                       class="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
                         + Add Post
                     </a>
-
                     <a href="{% url 'edit_profile' %}"
                        class="border px-6 py-3 rounded-lg hover:bg-gray-100 transition">
                         Edit Information
                     </a>
                 </div>
-
             </div>
         </div>
-    </div>
-
-    
+    </div>  
     <div class="flex gap-8 justify-center mt-12 overflow-x-auto">
         <div class="text-center">
             <div class="w-20 h-20 rounded-full border-2 border-gray-300 flex items-center justify-center text-3xl">
@@ -107,7 +83,6 @@
     <div class="border-t mt-14">
         <div class="flex justify-center gap-12">
             <button class="border-t-2 border-black py-4 font-semibold">
-                 POSTS
             </button>
         </div>
     </div> -->
@@ -115,13 +90,8 @@
 
     {% if posts %}
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-8">
-
             {% for post in posts %}
-
-            <div class="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 group">
-
-              
-                {% with post.media.all|first as media %}
+            <div class="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 group">         {% with post.media.all|first as media %}
                     {% if media %}
                         {% if media.media_type == "image" %}
                             <img src="{{ media.file.url }}"
@@ -132,16 +102,13 @@
                             </video>
                         {% endif %}
                     {% endif %}
-                {% endwith %}
-
-               
+                {% endwith %}              
                 <div class="px-3 py-2 flex items-center justify-between text-2xl">
 
                     <div class="flex gap-5">
                         <a href="{% url 'like_post' post.id %}" class="hover:scale-110 transition">
                             ❤️
                         </a>
-
                         <button
                             type="button"
                             onclick="toggleComments({{post.id }})"
@@ -153,43 +120,27 @@
                             ⌲
                         </a>
                     </div>
-
                     <a href="{% url 'delete_post' post.id %}"
                         onclick="return confirm('Are you sure you want to delete this post?')"
                         class="flex items-center gap-2 text-red-500 hover:text-red-700 transition">
-
                             <svg xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke-width="1.8"
                                 stroke="currentColor"
                                 class="w-5 h-5">
-
                                 <path stroke-linecap="round"
                                     stroke-linejoin="round"
                                     d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-8 0l.7 11.2A2 2 0 008.7 20h6.6a2 2 0 001.99-1.8L18 7M10 11v5m4-5v5"/>
-
                             </svg>
-
                     </a>
-
-                    
-   
-
-                </div>
-
-               
+                </div>             
                 <div class="px-3 text-sm font-semibold">
                     {{ post.likes.count }} likes
                 </div>
-
-              
                 <div class="px-3 py-1 text-sm">
-                    <span class="font-semibold">{{ post.caption }}</span>
-                    
-                </div>
-
-               
+                    <span class="font-semibold">{{ post.caption }}</span>                    
+                </div>             
                 <div class="px-3 pb-3 text-sm text-gray-500 space-y-1">
                     {% for comment in post.comments.all|slice:":2" %}
                         <p>
@@ -199,18 +150,14 @@
                             {{ comment.text }}
                         </p>
                     {% endfor %}
-                </div>
-
+              </div>
             </div>
-
             {% empty %}
                 <p class="col-span-3 text-center text-gray-500 mt-10">
                     No posts uploaded yet
                 </p>
             {% endfor %}
-
         </div>
-
     {% else %}
         <div class="text-center mt-12">
             <p class="text-gray-500 mt-3">
@@ -219,14 +166,12 @@
                  <path d="M12 16.5C14.2091 16.5 16 14.7091 16 12.5C16 10.2909 14.2091 8.5 12 8.5C9.79086 8.5 8 10.2909 8 12.5C8 14.7091 9.79086 16.5 12 16.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                  </svg>
             </p>
-
             <a href="{% url 'create_post' %}"
                class="inline-block mt-8 bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700">
                 Create Post
             </a>
         </div>
     {% endif %}
-
 </div>
 
 {% endblock %}

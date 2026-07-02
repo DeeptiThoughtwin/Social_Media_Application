@@ -31,7 +31,6 @@ def home(request):
 
 
 def signup(request):
-
     if request.method == "POST":
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -47,25 +46,20 @@ def signup(request):
 
 
 def login(request):
-
     if request.user.is_authenticated:
         return redirect("home")
-
     if request.method == "POST":
         form = LoginForm(request, data=request.POST)
-
         if form.is_valid():
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password"]
             user = authenticate(request,username=username,password=password)
-
             if user is not None:
                 auth_login(request, user)
                 messages.success(request,f"Welcome back {user.username}")
                 return redirect("home")
     else:
         form = LoginForm()
-
     return render(request,"login.html",{"form": form})
 
 

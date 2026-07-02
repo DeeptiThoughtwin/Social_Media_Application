@@ -3,11 +3,8 @@ from .forms import PostForm
 from django.contrib.auth.decorators import login_required
 from .models import Post, PostMedia, Like, Comment
 from Account.models import Follow
-from stories.models import Story
-from stories.forms import StoryForm
-
-
-
+from Stories.models import Story
+from Stories.forms import StoryForm
 
 @login_required
 def create_post(request):
@@ -27,41 +24,18 @@ def create_post(request):
     return render(request, 'posts/create_posts.html', {'form': form})
 
 
-
-
 @login_required
 def feed(request):
-
     posts = Post.objects.all().order_by("-created_at")
-
-    stories = Story.objects.filter(
-        expires_at__gt=timezone.now()
-    ).order_by("-created_at")
-
+    stories = Story.objects.filter().order_by("-created_at")
     story_form = StoryForm()
-
     for post in posts:
-
         post.is_following = Follow.objects.filter(
             follower=request.user,
             following=post.user
         ).exists()
-
-    context = {
-
-        "posts": posts,
-
-        "stories": stories,
-
-        "story_form": story_form,
-
-    }
-
-    return render(
-        request,
-        "posts/feed.html",
-        context
-    )
+    context = {"posts": posts,"stories": stories,"story_form": story_form}
+    return render(request,"posts/feed.html",context)
 
 
 @login_required
@@ -71,17 +45,20 @@ def delete_post(request, post_id):
     return redirect('profile')
 
 
+
 @login_required
 def like_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    like, created = Like.objects.get_or_create(user=request.user,post=post)
-    if not created:
-        like.delete()
-    return redirect('profile')
-
-
-
-
+    if request.method == "POST":
+        post = get_object_or_404(Post, id=post_id)
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        if not created:
+            like.delete()
+            liked = False
+        else:
+            liked = True
+        return JsonResponse({
+            'liked': liked,'like_count': post.like_set.count()})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 

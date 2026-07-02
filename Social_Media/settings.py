@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "Account.apps.AccountConfig",
     'posts',
     'Notifications',
+    'Stories',
 ]
 
 MIDDLEWARE = [
