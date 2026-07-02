@@ -3,6 +3,9 @@ from .forms import PostForm
 from django.contrib.auth.decorators import login_required
 from .models import Post, PostMedia, Like, Comment
 from Account.models import Follow
+from stories.models import Story
+from stories.forms import StoryForm
+
 
 
 
@@ -26,11 +29,40 @@ def create_post(request):
 
 
 
+@login_required
 def feed(request):
+
     posts = Post.objects.all().order_by("-created_at")
+
+    stories = Story.objects.filter(
+        expires_at__gt=timezone.now()
+    ).order_by("-created_at")
+
+    story_form = StoryForm()
+
     for post in posts:
-        post.is_following = Follow.objects.filter(follower=request.user,following=post.user).exists()
-    return render(request, "posts/feed.html", {"posts": posts})
+
+        post.is_following = Follow.objects.filter(
+            follower=request.user,
+            following=post.user
+        ).exists()
+
+    context = {
+
+        "posts": posts,
+
+        "stories": stories,
+
+        "story_form": story_form,
+
+    }
+
+    return render(
+        request,
+        "posts/feed.html",
+        context
+    )
+
 
 @login_required
 def delete_post(request, post_id):
