@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from .models import Profile,Follow
 from .forms import UserUpdateForm, ProfileUpdateForm
 from posts.models import Post
+from Stories.models import Story
+from Stories.forms import StoryForm
 from .forms import RegistrationForm,LoginForm,UserUpdateForm,ProfileUpdateForm
 from django.contrib.auth.models import User
 
@@ -14,6 +16,7 @@ from django.contrib.auth.models import User
 def home(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
     posts = Post.objects.all().order_by("-created_at")
+    stories = Story.objects.all().order_by("-created_at")
     for post in posts:
         post.is_following = Follow.objects.filter(
             follower=request.user,
@@ -25,9 +28,9 @@ def home(request):
         "posts_count": Post.objects.filter(user=request.user).count(),
         "followers_count": Follow.objects.filter(following=request.user).count(),
         "following_count": Follow.objects.filter(follower=request.user).count(),
+        "stories": stories,
         }
     return render(request, "home.html", context)
-
 
 
 def signup(request):
@@ -116,4 +119,20 @@ def follow_user(request, user_id):
         if not created:
             follows.delete()
     return redirect("profile")
+
+
+@login_required
+def feed(request):
+    posts = Post.objects.all().order_by("-created_at")
+    stories = Story.objects.all().order_by("-created_at") 
+    story_form = StoryForm()
+
+    # print(stories)
+
+    return render(request, "home.html", {
+        "posts": posts,
+        "stories": stories,
+        "story_form": story_form,
+    })
+
 

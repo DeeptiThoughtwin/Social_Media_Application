@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Add Story</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+<div class="min-h-screen flex items-center justify-center">
+    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
+        <h1 class="text-3xl text-center font-bold text-center text-pink-500 mb-8">
+            Add Story
+        </h1>
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+            class="space-y-6">
+            {% csrf_token %}
+            {{ form.image }}
+           <div class="flex justify-center">
+               <img
+                    id="preview"
+                    src="https://via.placeholder.com/250x250?text=Story"
+                    class="w-64 h-64 object-cover rounded-xl border border-gray-300">
+            </div>
+            <div class="text-center">
+               <label
+                    for="{{ form.image.id_for_label }}"
+                    class="cursor-pointer bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-lg">
+                    Choose Story
+                </label>
+            </div>         
+            {% for error in form.image.errors %}
+                <p class="text-center text-red-500">
+                    {{ error }}
+                </p>
+            {% endfor %}
+            <button
+                type="submit"
+                class="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white py-3 rounded-lg hover:opacity-90">
+                Upload Story
+            </button>
+        </form>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<script>
+const input = document.getElementById("id_image");
+const preview = document.getElementById("preview");
+input.addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+        preview.src = URL.createObjectURL(file);
+    }
+});
+</script>
+
+</body>
+</html>

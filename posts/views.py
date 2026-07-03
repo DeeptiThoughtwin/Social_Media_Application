@@ -24,19 +24,6 @@ def create_post(request):
     return render(request, 'posts/create_posts.html', {'form': form})
 
 
-@login_required
-def feed(request):
-    posts = Post.objects.all().order_by("-created_at")
-    stories = Story.objects.filter().order_by("-created_at")
-    story_form = StoryForm()
-    for post in posts:
-        post.is_following = Follow.objects.filter(
-            follower=request.user,
-            following=post.user
-        ).exists()
-    context = {"posts": posts,"stories": stories,"story_form": story_form}
-    return render(request,"posts/feed.html",context)
-
 
 @login_required
 def delete_post(request, post_id):
