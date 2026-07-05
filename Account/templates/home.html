@@ -230,10 +230,22 @@
                             <div class="px-3 text-sm font-semibold">
                                         {{ post.likes.count }} likes
                             </div>
-                            <div class="p-4">
-                                <p>
-                                    <span class="font-semibold">{{ post.user.username }}</span>
-                                    {{ post.caption }}
+                            <div class="px-4 py-3">
+                                <p class="text-sm text-left leading-6 break-words">
+                                    <span class="font-semibold mr-2">
+                                        {{ post.user.username }}
+                                    </span>
+
+                                    <span class="caption whitespace-pre-wrap">
+                                        {{ post.caption }}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        class="read-more hidden text-gray-500 font-semibold hover:text-black ml-1 inline"
+                                        onclick="toggleCaption(this)">
+                                        Read more
+                                    </button>
                                 </p>
                             </div>
                         </div>
@@ -246,6 +258,48 @@
         </main>
     </div>
 </div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    document.querySelectorAll(".caption").forEach(function(caption) {
+
+        const text = caption.textContent.trim();
+
+        if (text.length > 50) {
+
+            caption.dataset.full = text;
+            caption.dataset.short = text.substring(0, 50);
+
+            caption.textContent = caption.dataset.short + "...";
+
+            caption.nextElementSibling.classList.remove("hidden");
+        }
+
+    });
+
+});
+
+function toggleCaption(button) {
+
+    const caption = button.previousElementSibling;
+
+    if (button.innerText === "Read more") {
+
+        caption.textContent = caption.dataset.full;
+        button.innerText = "Show less";
+
+    } else {
+
+        caption.textContent = caption.dataset.short + "...";
+        button.innerText = "Read more";
+
+    }
+
+}
+</script>
+
 
 
 
