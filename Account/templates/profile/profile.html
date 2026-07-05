@@ -106,9 +106,19 @@
                 <div class="px-3 py-2 flex items-center justify-between text-2xl">
 
                     <div class="flex gap-5">
-                        <a href="{% url 'like_post' post.id %}" class="hover:scale-110 transition">
-                            ❤️
-                        </a>
+                        <button
+                            onclick="toggleLike({{ post.id }}, '{% url "like_post" post.id %}')"
+                            class="hover:scale-110 transition">
+    
+                            {% if request.user in post.likes.all.values_list %}
+                            <span id="like-btn-{{ post.id }}">❤️</span>
+                            {% else %}
+                            <span id="like-btn-{{ post.id }}">🤍</span>
+                            {% endif %}
+                        </button>
+
+                    <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span>
+
                         <button
                             type="button"
                             onclick="toggleComments({{post.id }})"
@@ -173,5 +183,50 @@
         </div>
     {% endif %}
 </div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(
+                    cookie.substring(name.length + 1)
+                );
+                break;
+            }
+        }
+    }
+
+    return cookieValue;
+}
+
+function toggleLike(postId, url) {
+
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        document.getElementById(`like-btn-${postId}`).innerHTML =
+            data.liked ? "❤️" : "🤍";
+
+        document.getElementById(`like-count-${postId}`).innerText =
+            data.likes_count;
+    })
+    .catch(error => console.log(error));
+}
+</script>
+
 
 {% endblock %}
