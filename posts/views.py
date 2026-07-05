@@ -35,17 +35,17 @@ def delete_post(request, post_id):
 
 @login_required
 def like_post(request, post_id):
-    if request.method == "POST":
-        post = get_object_or_404(Post, id=post_id)
-        like, created = Like.objects.get_or_create(user=request.user, post=post)
-        if not created:
-            like.delete()
-            liked = False
-        else:
-            liked = True
-        return JsonResponse({
-            'liked': liked,'like_count': post.like_set.count()})
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+    post = get_object_or_404(Post, id=post_id)
+    like, created = Like.objects.get_or_create(user=request.user,post=post)
+    if not created:
+        like.delete()
+        liked = False
+    else:
+        liked = True
+    return JsonResponse({"liked": liked,"likes_count": post.likes.count()})
+
+
+
 
 
 
