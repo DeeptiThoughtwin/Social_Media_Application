@@ -113,12 +113,31 @@ def edit_profile(request):
 
 @login_required
 def follow_user(request, user_id):
+
     user_to_follow = get_object_or_404(User, id=user_id)
-    if request.user != user_to_follow:
-        follows, created = Follow.objects.get_or_create(follower=request.user,following=user_to_follow)
-        if not created:
-            follows.delete()
-    return redirect("profile")
+
+    if request.user == user_to_follow:
+        return JsonResponse({"error": "You cannot follow yourself."}, status=400)
+
+    follow, created = Follow.objects.get_or_create(
+        follower=request.user,
+        following=user_to_follow
+    )
+
+    if created:
+        following = True
+    else:
+        follow.delete()
+        following = False
+
+    followers_count = Follow.objects.filter(
+        following=user_to_follow
+    ).count()
+
+    return JsonResponse({
+        "following": following,
+        "followers_count": followers_count,
+    })
 
 
 @login_required
