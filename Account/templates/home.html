@@ -179,18 +179,21 @@
 
                                 </div>
                                     {{ follow.follower.username }} 
-                                {% if request.user != post.user %}
-                                    <a href="{% url 'follow_user' post.user.id %}">
-                                        {% if post.is_following %}
-                                            <button class="bg-gray-200 px-4 py-1 rounded-md">
-                                                Following
-                                            </button>
-                                        {% else %}
-                                            <button class="bg-blue-500 text-white px-4 py-1 rounded-md">
-                                                Follow
-                                            </button>
-                                        {% endif %}
-                                    </a>
+                               {% if request.user != post.user %}
+                                <button
+                                    id="follow-btn-{{ post.user.id }}"
+                                    onclick="toggleFollow(
+                                        {{ post.user.id }},
+                                        '{% url "follow_user" post.user.id %}'
+                                    )"
+                                    class="{% if post.is_following %}bg-gray-200{% else %}bg-blue-500 text-white{% endif %} px-4 py-1 rounded-md">
+                                
+                                    {% if post.is_following %}
+                                        Following
+                                    {% else %}
+                                        Follow
+                                    {% endif %}
+                                </button>
                                 {% endif %}
 
 
@@ -298,6 +301,49 @@ function toggleCaption(button) {
     }
 
 }
+
+
+function toggleFollow(userId, url) {
+
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        const button = document.getElementById(`follow-btn-${userId}`);
+
+        if (data.following) {
+
+            button.innerText = "Following";
+
+            button.classList.remove("bg-blue-500", "text-white");
+
+            button.classList.add("bg-gray-200");
+
+        } else {
+
+            button.innerText = "Follow";
+
+            button.classList.remove("bg-gray-200");
+
+            button.classList.add("bg-blue-500", "text-white");
+        }
+
+        // Optional: update followers count if you have an element for it
+        const followers = document.getElementById("followers-count");
+        if (followers) {
+            followers.innerText = data.followers_count;
+        }
+
+    })
+    .catch(error => console.log(error));
+}
+        
 </script>
 
 
