@@ -110,6 +110,8 @@
                         </li>
                 </ul>
             </div>
+
+            
         </aside>
 
 
@@ -216,9 +218,16 @@
                             <div class="px-3 py-2 flex items-center justify-between text-2xl">
 
                                 <div class="flex gap-5">
-                                    <a href="{% url 'like_post' post.id %}" class="hover:scale-110 transition">
-                                        ❤️
-                                    </a>
+                                    <button
+                                        onclick="toggleLike({{ post.id }}, '{% url "like_post" post.id %}')"
+                                        class="hover:scale-110 transition">
+                
+                                        {% if request.user in post.likes.all.values_list %}
+                                        <span id="like-btn-{{ post.id }}">❤️</span>
+                                        {% else %}
+                                        <span id="like-btn-{{ post.id }}">🤍</span>
+                                        {% endif %}
+                                    </button>
                                     
 
                                     <button
@@ -231,8 +240,9 @@
                             </div>
 
                             <div class="px-3 text-sm font-semibold">
-                                        {{ post.likes.count }} likes
+                                <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span> likes
                             </div>
+
                             <div class="px-4 py-3">
                                 <p class="text-sm text-left leading-6 break-words">
                                     <span class="font-semibold mr-2">
@@ -271,17 +281,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const text = caption.textContent.trim();
 
         if (text.length > 50) {
-
             caption.dataset.full = text;
             caption.dataset.short = text.substring(0, 50);
-
             caption.textContent = caption.dataset.short + "...";
-
             caption.nextElementSibling.classList.remove("hidden");
         }
-
     });
-
 });
 
 function toggleCaption(button) {
@@ -297,9 +302,7 @@ function toggleCaption(button) {
 
         caption.textContent = caption.dataset.short + "...";
         button.innerText = "Read more";
-
     }
-
 }
 
 
@@ -334,17 +337,68 @@ function toggleFollow(userId, url) {
             button.classList.add("bg-blue-500", "text-white");
         }
 
-        // Optional: update followers count if you have an element for it
-        const followers = document.getElementById("followers-count");
-        if (followers) {
-            followers.innerText = data.followers_count;
-        }
+        // const followers = document.getElementById("followers-count");
+        // if (followers) {
+        //     followers.innerText = data.followers_count;
+        // }
 
     })
     .catch(error => console.log(error));
 }
+
+
+
+function getCookie(name) {
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(
+                    cookie.substring(name.length + 1)
+                );
+                break;
+            }
+        }
+    }
+
+    return cookieValue;
+}
+
+function toggleLike(postId, url) {
+
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest",
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        document.getElementById(`like-btn-${postId}`).innerHTML =
+            data.liked ? "❤️" : "🤍";
+
+        document.getElementById(`like-count-${postId}`).innerText =
+            data.likes_count;
+    })
+    .catch(error => console.log(error));
+}
+
+
+
         
 </script>
+
+
+
+
+
 
 
 

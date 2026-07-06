@@ -51,7 +51,21 @@ INSTALLED_APPS = [
     'posts',
     'Notifications',
     'Stories',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
 ]
+
+# AUTHENTICATION_BACKENDS = [
+    
+#     'allauth.account.auth_backends.AuthenticationBackend', 
+# ]
+
+# AUTH_USER_MODEL =  "user.CustomUser"
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -61,9 +75,47 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
+
 ]
 
 ROOT_URLCONF = 'Social_Media.urls'
+
+
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'APP': {
+#             'client_id':'',
+#             'secret': '',
+          
+#         },
+#         'SCOPE': ['profile','email',],
+#          'AUTH_PARAMS': {'access_type': 'online'},
+#         'METHOD': 'oauth2',
+#         'VERIFIED_EMAIL': True,
+#     },
+#     'github': {
+#         'APP': {
+#             'client_id': '',
+#             'secret': '',
+           
+#         }
+#     }
+   
+# }
+
+# SOCIALACCOUNT_LOGIN_ON_GET=True
+# LOGIN_REDIRECT_URL = 'success'
+# LOGIN_URL = 'login'
+# SOCIALACCOUNT_AUTO_SIGNUP = True
+# WSGI_APPLICATION = "social_login.wsgi.application"
+
+
+
+
+
+
 
 TEMPLATES = [
     {

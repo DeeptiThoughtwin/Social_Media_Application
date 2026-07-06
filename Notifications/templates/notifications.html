@@ -14,6 +14,7 @@
     {% for notification in notifications %}
     <div class="bg-white rounded-xl shadow p-5 mb-4 flex justify-between items-center">
         <div>
+            
             {% if notification.notification_type == "like" %}
                 <p class="text-lg"> 
                    <span class="font-semibold">
@@ -21,6 +22,7 @@
                     </span>
                     liked your post.
                 </p>
+
             {% elif notification.notification_type == "comment" %}
                 <p class="text-lg">   
                     <span class="font-semibold">
@@ -28,6 +30,7 @@
                     </span>
                     commented on your post.
                 </p>
+
             {% elif notification.notification_type == "follow" %}
                 <p class="text-lg">
                     <span class="font-semibold">
@@ -35,6 +38,7 @@
                     </span>
                     started following you.
                 </p>
+
             {% endif %}
                 <p class="text-sm text-gray-500 mt-2">
                     {{ notification.created_at }}

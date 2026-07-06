@@ -5,6 +5,7 @@ from .models import Post, PostMedia, Like, Comment
 from Account.models import Follow
 from Stories.models import Story
 from Stories.forms import StoryForm
+from django.http import JsonResponse
 
 @login_required
 def create_post(request):
@@ -18,7 +19,7 @@ def create_post(request):
             for f in files:
                 media_type = 'video' if f.content_type.startswith('video') else 'image'
                 PostMedia.objects.create(post=post,file=f,media_type=media_type)
-            return redirect('feed')
+            return redirect('profile')
     else:
         form = PostForm()
     return render(request, 'posts/create_posts.html', {'form': form})

@@ -11,6 +11,7 @@ from Stories.models import Story
 from Stories.forms import StoryForm
 from .forms import RegistrationForm,LoginForm,UserUpdateForm,ProfileUpdateForm
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 
 @login_required
 def home(request):
@@ -155,3 +156,5 @@ def feed(request):
     })
 
 
+def newMenu(request):
+    return render(request,'newMenu.html')

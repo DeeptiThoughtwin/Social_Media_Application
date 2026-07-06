@@ -4,8 +4,10 @@ from posts.models import Like, Comment
 from .models import Notification
 from Account.models import Follow
 
+
 @receiver(post_save, sender=Like)
 def create_like_notification(sender, instance, created, **kwargs):
+    # import pdb; pdb.set_trace()
    
     if created:
         
@@ -16,6 +18,8 @@ def create_like_notification(sender, instance, created, **kwargs):
                 post=instance.post,
                 notification_type="like"
             )
+
+
 
 @receiver(post_save, sender=Comment)
 def create_comment_notification(sender, instance, created, **kwargs):

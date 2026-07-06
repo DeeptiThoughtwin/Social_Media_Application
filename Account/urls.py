@@ -14,7 +14,7 @@ urlpatterns = [
 
     path("home/",views.home,name="home"),
 
-     # path('story/', views.feed, name='feed'),
+     path('menu/', views.newMenu, name='newMenu'),
 
     path("follow/<int:user_id>/",views.follow_user,name="follow_user"),
   
