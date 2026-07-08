@@ -120,25 +120,17 @@ def follow_user(request, user_id):
     if request.user == user_to_follow:
         return JsonResponse({"error": "You cannot follow yourself."}, status=400)
 
-    follow, created = Follow.objects.get_or_create(
-        follower=request.user,
-        following=user_to_follow
-    )
-
+    follow, created = Follow.objects.get_or_create(follower=request.user,following=user_to_follow)
     if created:
         following = True
     else:
         follow.delete()
         following = False
-
     followers_count = Follow.objects.filter(
         following=user_to_follow
     ).count()
 
-    return JsonResponse({
-        "following": following,
-        "followers_count": followers_count,
-    })
+    return JsonResponse({"following": following, "followers_count": followers_count})
 
 
 @login_required
@@ -158,3 +150,7 @@ def feed(request):
 
 def newMenu(request):
     return render(request,'newMenu.html')
+
+
+
+

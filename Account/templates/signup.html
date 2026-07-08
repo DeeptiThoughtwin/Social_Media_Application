@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load socialaccount %}
 
 {% block content %}
 
@@ -7,6 +8,7 @@
         <h2 class="text-3xl font-bold text-center text-pink-400 mb-6">
             Create Account
         </h2>
+        
         <form method="POST" class="space-y-4" novalidate>
             {% csrf_token %}
 
@@ -21,7 +23,6 @@
                 {% endfor %}
             </div>
 
-            
             <div>
                 <label for="{{ form.last_name.id_for_label }}" class="block text-lg font-medium text-gray-700 mb-1">
                     {{ form.last_name.label }}
@@ -90,18 +91,36 @@
                 class="w-full bg-gradient-to-r from-purple-400 via-pink-400 to-red-500 hover:from-purple-300 hover:via-pink-300 hover:to-red-400 text-white py-3 rounded-lg font-semibold transition duration-300">
                 Register
             </button>
-
         </form>
 
-        <p class="mt-4 text-center text-sm text-gray-600">
+        <div class="relative flex py-4 items-center">
+            <div class="flex-grow border-t border-gray-300"></div>
+            <span class="flex-shrink mx-4 text-gray-400 text-xs uppercase font-sans">Or connect with</span>
+            <div class="flex-grow border-t border-gray-300"></div>
+        </div>
+
+        <div class="space-y-3">
+            <a href="{% provider_login_url 'google' %}" 
+               class="flex items-center justify-center gap-3 w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-lg font-semibold transition duration-300 shadow-sm font-sans text-sm">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/250px-Google_%22G%22_logo.svg.png" alt="Google logo" class="w-5 h-5">
+                Sign up with Google
+            </a>
+
+            <a href="{% provider_login_url 'github' %}" 
+            class="flex items-center justify-center gap-3 w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-lg font-semibold transition duration-300 shadow-sm font-sans text-sm">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Octicons-mark-github.svg/960px-Octicons-mark-github.svg.png?_=20180806170715" alt="GitHub logo" class="w-5 h-5">
+            Sign Up with GitHub
+            </a>             
+
+        </div>
+
+        <p class="mt-6 text-center text-sm text-gray-600">
             Already have an account?
             <a href="{% url 'login' %}" class="text-pink-600 hover:underline">
                 Log In
             </a>
         </p>
-
     </div>
-
 </div>
 
 {% endblock content %}

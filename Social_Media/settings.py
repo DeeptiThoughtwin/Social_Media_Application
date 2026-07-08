@@ -31,7 +31,8 @@ SECRET_KEY = 'django-insecure-a6z+f&w4+rvuc#($%0-wvzd7@2m%xm3r9_!4$&*sx!qw$3$ymj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
 
 
 LOGIN_URL = "login"
@@ -51,19 +52,28 @@ INSTALLED_APPS = [
     'posts',
     'Notifications',
     'Stories',
+
+    'django.contrib.sites',
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
+    # 'allauth.socialaccount.providers.linkedin_oauth2',
+    'allauth.socialaccount.providers.openid_connect',
+
 ]
 
-# AUTHENTICATION_BACKENDS = [
-    
-#     'allauth.account.auth_backends.AuthenticationBackend', 
-# ]
 
-# AUTH_USER_MODEL =  "user.CustomUser"
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend'
+]
+
+
+
 
 
 
@@ -75,7 +85,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware",
+    'allauth.account.middleware.AccountMiddleware',
 
 ]
 
@@ -83,33 +93,54 @@ ROOT_URLCONF = 'Social_Media.urls'
 
 
 
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'APP': {
-#             'client_id':'',
-#             'secret': '',
-          
-#         },
-#         'SCOPE': ['profile','email',],
-#          'AUTH_PARAMS': {'access_type': 'online'},
-#         'METHOD': 'oauth2',
-#         'VERIFIED_EMAIL': True,
-#     },
-#     'github': {
-#         'APP': {
-#             'client_id': '',
-#             'secret': '',
-           
-#         }
-#     }
-   
-# }
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE' : [
+            'profile',
+            'email'
+        ],
+        'APP': {
+            'client_id': os.environ['CLIENT_ID'],
+            'secret': os.environ['CLIENT_SECRET'],
+        },
+        'AUTH_PARAMS': {
+            'access_type':'online',
+        }
+    },
 
-# SOCIALACCOUNT_LOGIN_ON_GET=True
-# LOGIN_REDIRECT_URL = 'success'
-# LOGIN_URL = 'login'
-# SOCIALACCOUNT_AUTO_SIGNUP = True
-# WSGI_APPLICATION = "social_login.wsgi.application"
+    "github": {
+        "VERIFIED_EMAIL": True,
+        "APP": {
+            "client_id": os.environ["GITHUB_CLIENT_ID"],
+            "secret": os.environ["GITHUB_CLIENT_SECRET"],
+
+
+        },
+    },
+
+    'openid_connect': {
+        'APPS': [
+            {
+                'provider_id': 'linkedin',
+                'name': 'LinkedIn',
+                'client_id': os.environ.get('LINKEDIN_CLIENT_ID'),
+                'secret': os.environ.get('LINKEDIN_CLIENT_SECRET'),
+                'settings': {
+                    'server_url': 'https://linkedin.com',
+                }
+            }
+        ]
+    },
+
+}
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
 
 
 
@@ -120,10 +151,11 @@ ROOT_URLCONF = 'Social_Media.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR/'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Threaded Comments</title>
+    <style>
+        .comment-section { max-width: 600px; margin: 20px auto; font-family: sans-serif; }
+        .comment-card { border-left: 2px solid #ccc; padding-left: 15px; margin-bottom: 15px; margin-top: 10px; }
+        .reply-form-container { margin-top: 20px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; }
+        textarea { width: 100%; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="comment-section">
+    
+
+    
+    {% for comment in comments %}
+        <!-- Dynamic indentation: depth * 30px -->
+        <div class="comment-card" style="margin-left: calc({{ comment.tree_depth }} * 30px);">
+            <p><strong>{{ comment.user.username }}</strong> <small style="color: gray;">{{ comment.created_at|timesince }} ago</small></p>
+            <p>{{ comment.text }}</p>
+            
+            {% if user.is_authenticated %}
+                <button type="button" onclick="showReplyForm('{{ comment.id }}')">Reply</button>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No comments yet. Be the first!</p>
+    {% endfor %}
+
+    
+    {% if user.is_authenticated %}
+        <div id="form-wrapper" class="reply-form-container">
+            <h3 id="form-title">Leave a comment</h3>
+            <form method="post" action="">
+                {% csrf_token %}
+                {{ form.as_p }}
+    
+                <input type="hidden" name="parent_id" id="parent-id-field" value="">
+                
+                <button type="submit">Submit</button>
+                <button type="button" id="cancel-btn" style="display: none;" onclick="cancelReply()">Cancel</button>
+            </form>
+        </div>
+    {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to join the conversation.</p>
+    {% endif %}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    const formWrapper = document.getElementById('form-wrapper');
+    const formTitle = document.getElementById('form-title');
+    const parentIdField = document.getElementById('parent-id-field');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const originalParent = formWrapper.parentElement;
+
+    function showReplyForm(commentId) {      
+        const commentCard = event.target.closest('.comment-card');
+        commentCard.appendChild(formWrapper);
+        parentIdField.value = commentId;
+        formTitle.innerText = "Reply to comment";
+        cancelBtn.style.display = "inline-block";
+    }
+
+    function cancelReply() {
+        originalParent.appendChild(formWrapper);
+        parentIdField.value = "";
+        formTitle.innerText = "Leave a comment";
+        cancelBtn.style.display = "none";
+    }
+</script>
+
+</body>
+</html>

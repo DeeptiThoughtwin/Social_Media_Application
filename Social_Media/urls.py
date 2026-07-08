@@ -22,11 +22,14 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('thirdlogin/', include('allauth.urls')),
+    # path('app/',include('social_login.urls')), 
+
     path('', include('Account.urls')),
     path('posts/', include('posts.urls')),
     path('notifications/',include('Notifications.urls')),
     path('stories/',include('Stories.urls')),
+    path('accounts/', include('allauth.urls')),
+ 
 
     
 ]

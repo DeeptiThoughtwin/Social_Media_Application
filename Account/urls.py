@@ -14,7 +14,8 @@ urlpatterns = [
 
     path("home/",views.home,name="home"),
 
-     path('menu/', views.newMenu, name='newMenu'),
+
+    path('menu/', views.newMenu, name='newMenu'),
 
     path("follow/<int:user_id>/",views.follow_user,name="follow_user"),
   
