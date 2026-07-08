@@ -222,13 +222,13 @@
                                         onclick="toggleLike({{ post.id }}, '{% url "like_post" post.id %}')"
                                         class="hover:scale-110 transition">
                 
-                                        {% if request.user in post.likes.all.values_list %}
-                                        <span id="like-btn-{{ post.id }}">❤️</span>
+                                        {% if post.is_liked %}
+                                            <span id="like-btn-{{ post.id }}">❤️</span>
                                         {% else %}
-                                        <span id="like-btn-{{ post.id }}">🤍</span>
+                                            <span id="like-btn-{{ post.id }}">🤍</span>
                                         {% endif %}
                                     </button>
-                                    
+
                                     
 
                                     <button
