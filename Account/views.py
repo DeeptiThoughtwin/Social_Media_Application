@@ -6,7 +6,7 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from .models import Profile,Follow
 from .forms import UserUpdateForm, ProfileUpdateForm
-from posts.models import Post
+from posts.models import Post,Like
 from Stories.models import Story
 from Stories.forms import StoryForm
 from .forms import RegistrationForm,LoginForm,UserUpdateForm,ProfileUpdateForm
@@ -16,13 +16,21 @@ from django.http import JsonResponse
 @login_required
 def home(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
+
     posts = Post.objects.all().order_by("-created_at")
     stories = Story.objects.all().order_by("-created_at")
+
     for post in posts:
         post.is_following = Follow.objects.filter(
             follower=request.user,
             following=post.user
         ).exists()
+
+        post.is_liked = Like.objects.filter(
+            user=request.user,
+            post=post
+        ).exists()
+
     context = {
         "profile": profile,
         "posts": posts,
@@ -30,9 +38,9 @@ def home(request):
         "followers_count": Follow.objects.filter(following=request.user).count(),
         "following_count": Follow.objects.filter(follower=request.user).count(),
         "stories": stories,
-        }
-    return render(request, "home.html", context)
+    }
 
+    return render(request, "home.html", context)
 
 def signup(request):
     if request.method == "POST":
@@ -81,11 +89,32 @@ def logout(request):
 @login_required
 def profile(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
+
     posts = Post.objects.filter(user=request.user).order_by("-created_at")
-    followers_count = Follow.objects.filter(following=request.user).count()
-    following_count = Follow.objects.filter(follower=request.user).count()
-    context = {"profile": profile,"posts": posts,"posts_count": posts.count(),"followers_count": followers_count,"following_count": following_count,}
-    return render(request, "profile/profile.html", context)
+
+    for post in posts:
+        post.is_liked = Like.objects.filter(
+            user=request.user,
+            post=post
+        ).exists()
+
+    followers_count = Follow.objects.filter(
+        following=request.user
+    ).count()
+
+    following_count = Follow.objects.filter(
+        follower=request.user
+    ).count()
+
+    context = {
+        "profile": profile,
+        "posts": posts,
+        "posts_count": posts.count(),
+        "followers_count": followers_count,
+        "following_count": following_count,
+    }
+
+    return render(request, "newprofile.html", context)
 
 
 @login_required
@@ -151,6 +180,7 @@ def feed(request):
 def newMenu(request):
     return render(request,'newMenu.html')
 
-
+def newProfile(request):
+    return render(request,'newprofile.html')
 
 

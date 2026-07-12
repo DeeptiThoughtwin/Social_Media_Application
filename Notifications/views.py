@@ -6,8 +6,19 @@ from django.http import JsonResponse
 
 @login_required
 def notifications(request):
-    notifications = Notification.objects.filter(receiver=request.user).order_by("-created_at")
-    return render(request,"notifications.html",{"notifications": notifications})
+
+    notifications = Notification.objects.filter(
+        receiver=request.user
+    ).order_by("-created_at")
+    notifications.update(is_read=True)
+
+    return render(
+        request,
+        "notifications.html",
+        {
+            "notifications": notifications
+        }
+    )
 
 
 

@@ -52,8 +52,9 @@ INSTALLED_APPS = [
     'posts',
     'Notifications',
     'Stories',
+    'comments',
 
-    'django.contrib.sites',
+    # 'django.contrib.sites',
 
     'allauth',
     'allauth.account',
@@ -93,46 +94,46 @@ ROOT_URLCONF = 'Social_Media.urls'
 
 
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE' : [
-            'profile',
-            'email'
-        ],
-        'APP': {
-            'client_id': os.environ['CLIENT_ID'],
-            'secret': os.environ['CLIENT_SECRET'],
-        },
-        'AUTH_PARAMS': {
-            'access_type':'online',
-        }
-    },
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE' : [
+#             'profile',
+#             'email'
+#         ],
+#         'APP': {
+#             'client_id': os.environ['CLIENT_ID'],
+#             'secret': os.environ['CLIENT_SECRET'],
+#         },
+#         'AUTH_PARAMS': {
+#             'access_type':'online',
+#         }
+#     },
 
-    "github": {
-        "VERIFIED_EMAIL": True,
-        "APP": {
-            "client_id": os.environ["GITHUB_CLIENT_ID"],
-            "secret": os.environ["GITHUB_CLIENT_SECRET"],
+#     "github": {
+#         "VERIFIED_EMAIL": True,
+#         "APP": {
+#             "client_id": os.environ["GITHUB_CLIENT_ID"],
+#             "secret": os.environ["GITHUB_CLIENT_SECRET"],
 
 
-        },
-    },
+#         },
+#     },
 
-    'openid_connect': {
-        'APPS': [
-            {
-                'provider_id': 'linkedin',
-                'name': 'LinkedIn',
-                'client_id': os.environ.get('LINKEDIN_CLIENT_ID'),
-                'secret': os.environ.get('LINKEDIN_CLIENT_SECRET'),
-                'settings': {
-                    'server_url': 'https://linkedin.com',
-                }
-            }
-        ]
-    },
+#     'openid_connect': {
+#         'APPS': [
+#             {
+#                 'provider_id': 'linkedin',
+#                 'name': 'LinkedIn',
+#                 'client_id': os.environ.get('LINKEDIN_CLIENT_ID'),
+#                 'secret': os.environ.get('LINKEDIN_CLIENT_SECRET'),
+#                 'settings': {
+#                     'server_url': 'https://linkedin.com',
+#                 }
+#             }
+#         ]
+#     },
 
-}
+# }
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
@@ -214,17 +215,24 @@ LOGOUT_REDIRECT_URL = '/'
 #     }
 # }
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.environ.get('DB_NAME'),
+#         "USER": os.environ.get('DB_USER'),
+#         "PASSWORD": os.environ.get('DB_USER_PASSWORD'),
+#         "HOST": os.environ.get('DB_HOST'),
+#         "PORT": os.environ.get('DB_PORT'),
+#     }
+# }
+
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get('DB_NAME'),
-        "USER": os.environ.get('DB_USER'),
-        "PASSWORD": os.environ.get('DB_USER_PASSWORD'),
-        "HOST": os.environ.get('DB_HOST'),
-        "PORT": os.environ.get('DB_PORT'),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 

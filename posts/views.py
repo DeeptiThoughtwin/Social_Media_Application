@@ -1,13 +1,13 @@
 
-from .forms import PostForm,CommentForm
+from .forms import PostForm
 from django.contrib.auth.decorators import login_required
-from .models import Post, PostMedia, Like, Comment
+from .models import Post, PostMedia, Like
 from Account.models import Follow
 from Stories.models import Story
 from Stories.forms import StoryForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from tree_queries.query import TreeQuerySet
+
 
 
 
@@ -59,15 +59,3 @@ def post_detail(request, post_id):
 
 
 
-
-@login_required
-def add_comment(request, post_id):
-    if request.method == "POST":
-        post = get_object_or_404(Post, id=post_id)
-        Comment.objects.create(user=request.user,post=post,text=request.POST.get('text'))
-    return redirect('post_detail', pk=post_id)
-
-
-@login_required
-def comment_thread(request):
-    return render(request, 'comment.html')

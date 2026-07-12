@@ -28,6 +28,7 @@ urlpatterns = [
     path('posts/', include('posts.urls')),
     path('notifications/',include('Notifications.urls')),
     path('stories/',include('Stories.urls')),
+    path('comments/',include('comments.urls')),
     path('accounts/', include('allauth.urls')),
  
 
