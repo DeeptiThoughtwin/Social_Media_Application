@@ -11,22 +11,25 @@
                 Edit Profile
             </h1>
         </div>
+
+
+
         <form method="POST"
               enctype="multipart/form-data"
               class="p-8">
             {% csrf_token %}
             <div class="flex flex-col items-center">
-                {% if profile.profile_picture %}
-                   <img
-                        id="preview"
+                {% if profile.profile_picture and profile.profile_picture.url %}
+                <img id="preview"
                         src="{{ profile.profile_picture.url }}"
-                        class="w-40 h-40 rounded-full object-cover border-4 border-pink-500 shadow-lg">
+                        class="w-40 h-40 rounded-full object-cover border-4 border-pink-500 shadow-lg"
+                        onerror="this.onerror=null; this.src='{% static 'images/default.jpg' %}';">
                 {% else %}
-                   <img
-                        id="preview"
-                        src="{% static 'images/default.jpg' %}"
+                <img id="preview"
+                        src=\"{% static 'images/default.jpg' %}\"
                         class="w-40 h-40 rounded-full object-cover border-4 border-pink-500 shadow-lg">
                 {% endif %}
+
                 <label
                     class="mt-6 cursor-pointer bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-8 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition">
                     Change Profile Picture

@@ -182,5 +182,7 @@ def newMenu(request):
 
 def newProfile(request):
     return render(request,'newprofile.html')
+def new_comment(request):
+    return render(request,'newcomments.html')
 
 

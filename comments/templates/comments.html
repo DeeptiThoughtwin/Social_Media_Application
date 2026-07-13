@@ -1,0 +1,118 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body>
+    <div class="max-w-2xl mx-auto my-10 px-6 py-8 bg-white border border-slate-100 rounded-2xl shadow-sm font-sans">
+    
+    <div class="flex items-center gap-3 mb-8">
+        <span class="px-2.5 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600 rounded-full ring-1 ring-slate-200/50">
+            {{ comments.count }}
+        </span>
+    </div>
+
+    
+    <div class="space-y-6">
+        {% for comment in comments %}
+            {% if not comment.parent %}
+                <div class="border-b border-slate-100 last:border-0 pb-6 last:pb-0">
+                    {% include 'comment_node.html' with node=comment %}
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="text-center py-12 bg-slate-50/50 border border-dashed border-pink-200 rounded-xl">
+                <p class="text-sm text-slate-400">No comments yet.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    
+    {% if user.is_authenticated %}
+        <div id="main-comment-form-wrapper" class="mt-10 pt-8 border-t border-slate-100">
+            <h4 id="form-title" class="text-sm font-bold text-pink-700 tracking-wide uppercase mb-4">Join the conversation</h4>
+            
+            <form id="comment-submission-form" action="{% url 'comment_view' post.pk %}" method="POST" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="parent_id" id="parent-id-input" value="">
+                
+                <div class="django-form-wrapper group relative rounded-xl border border-slate-200 bg-slate-50/30 p-1 transition-all duration-200 focus-within:border-pink-500 focus-within:ring-4 focus-within:ring-pink-500/10">
+                    <div class="[&_textarea]:w-full [&_textarea]:min-h-[100px] [&_textarea]:bg-transparent [&_textarea]:p-3 [&_textarea]:text-sm [&_textarea]:text-black  [&_textarea]:placeholder-pink-400 [&_textarea]:resize-y [&_textarea]:outline-none">
+                        {{ comment_form.as_p }}
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="px-5 py-2.5 bg-pink-500 hover:bg-pink-700 text-white font-medium text-sm rounded-xl transition-all duration-200 shadow-sm shadow-pink-600/10 hover:shadow-pink-600/20 active:scale-[0.98]">
+                        Submit Comment
+                    </button>
+                    <button type="button" id="cancel-reply-btn" onclick="cancelReply()" class="hidden px-5 py-2.5 bg-pink-300 hover:bg-pink-400 text-pink-600 font-medium text-sm rounded-xl transition-all duration-200 active:scale-[0.98]">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div> 
+    {% else %}
+        <div class="mt-10 p-4 bg-slate-50 border border-pink-200/60 rounded-xl text-center">
+            <p class="text-sm text-slate-500">
+                You must be <a href="{% url 'login' %}" class="font-semibold text-indigo-600 hover:underline">logged in</a> to write a response.
+            </p>
+        </div>
+    {% endif %}
+</div>
+
+
+<script>
+function toggleReplyForm(commentId) {
+    const form = document.getElementById('comment-submission-form');
+    const targetContainer = document.getElementById(`reply-form-container-${commentId}`);
+    const parentInput = document.getElementById('parent-id-input');
+    const formTitle = document.getElementById('form-title');
+    const cancelBtn = document.getElementById('cancel-reply-btn');
+
+    document.querySelectorAll('[id^="reply-form-container-"]').forEach(div => div.classList.add('hidden'));
+
+    targetContainer.appendChild(form);
+    targetContainer.classList.remove('hidden');
+    
+    parentInput.value = commentId;
+    formTitle.innerText = "Replying to user thread";
+    cancelBtn.classList.remove('hidden');
+}
+
+function cancelReply() {
+    const form = document.getElementById('comment-submission-form');
+    const mainWrapper = document.getElementById('main-comment-form-wrapper');
+    const parentInput = document.getElementById('parent-id-input');
+    const formTitle = document.getElementById('form-title');
+    const cancelBtn = document.getElementById('cancel-reply-btn');
+
+    document.querySelectorAll('[id^="reply-form-container-"]').forEach(div => div.classList.add('hidden'));
+    mainWrapper.appendChild(form);
+    
+    parentInput.value = "";
+    formTitle.innerText = "Join the conversation";
+    cancelBtn.classList.add('hidden');
+}
+</script>
+
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comments Thread</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-pink-200 min-h-screen p-4">
+    
+</body>
+</html>

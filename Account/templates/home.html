@@ -188,18 +188,18 @@
        0
       </span>
      </div>
-     <!-- Add Post Desktop -->
+    
      <a class="hidden sm:block bg-gradient-to-r from-pink-500 to-orange-400 text-white px-4 md:px-5 py-2 rounded-xl transition hover:scale-105" href="{% url 'create_post' %}">
       Add Post
      </a>
-     <!-- Add Post Mobile -->
+    
      <a class="sm:hidden bg-gradient-to-r from-pink-500 to-orange-400 text-white px-3 py-2 rounded-xl" href="{% url 'create_post' %}">
       +
      </a>
     </div>
    </div>
   </div>
-  <!-- Stories -->
+ 
   <div>
    {% include "story.html" %}
   </div>
@@ -219,18 +219,25 @@
        </p>
       </div>
      </div>
-     {{ follow.follower.username }} 
-                               {% if request.user != post.user %}
-     <button %}'="" )"="" class="follow-btn-{{ post.user.id }} {% if post.is_following %}bg-gray-200{% else %}bg-blue-500 text-white{% endif %} px-4 py-1 rounded-md" follow_user"="" onclick="toggleFollow(
-                                        {{ post.user.id }},
-                                        '{% url " post.user.id="">
-      {% if post.is_following %}
-                                        Following
-                                    {% else %}
-                                        Follow
-                                    {% endif %}
-     </button>
-     {% endif %}
+
+            {{ follow.follower.username }} 
+            {% if request.user != post.user %}
+            <button
+                class="follow-btn-{{ post.user.id }} {% if post.is_following %}bg-gray-200{% else %}bg-blue-500 text-white{% endif %} px-4 py-1 rounded-md"
+                onclick="toggleFollow(
+                    {{ post.user.id }},
+                    '{% url 'follow_user' post.user.id %}'
+                )">
+
+                {% if post.is_following %}
+                    Following
+                {% else %}
+                    Follow
+                {% endif %}
+            </button>
+            {% endif %}
+
+
     </div>
     {% for media in post.media.all %}
 
@@ -246,17 +253,20 @@
                             
     <div class="px-3 py-2 flex items-center justify-between text-2xl">
      <div class="flex gap-5">
-      <button %}')"="" class="hover:scale-110 transition" like_post"="" onclick="toggleLike({{ post.id }}, '{% url " post.id="">
-       {% if post.is_liked %}
-       <span id="like-btn-{{ post.id }}">
-        ❤️
-       </span>
-       {% else %}
-       <span id="like-btn-{{ post.id }}">
-        🤍
-       </span>
-       {% endif %}
-      </button>
+      <button 
+    class="hover:scale-110 transition" 
+    onclick="toggleLike({{ post.id }}, '{% url 'like_post' post.id %}')">
+    
+    <span id="like-btn-{{ post.id }}">
+        {% if post.is_liked %}
+            ❤️
+        {% else %}
+            🤍
+        {% endif %}
+    </span>
+</button>
+<!-- <span id="like-count-{{ post.id }}">{{ post.likes_count }}</span> -->
+
       <button class="hover:scale-110 transition" onclick="openComments({{ post.id }})">
        💬
       </button>
@@ -322,9 +332,7 @@ function toggleCaption(button) {
     }
 }
 
-
 function toggleFollow(userId, url) {
-
     fetch(url, {
         method: "POST",
         headers: {
@@ -334,33 +342,73 @@ function toggleFollow(userId, url) {
     })
     .then(response => response.json())
     .then(data => {
-
+        // Correctly select all buttons matching the user ID
         const buttons = document.querySelectorAll(`.follow-btn-${userId}`);
 
+        // Loop through every button found and update its state
         buttons.forEach(button => {
-
             if (data.following) {
-
                 button.innerText = "Following";
-
                 button.classList.remove("bg-blue-500", "text-white");
                 button.classList.add("bg-gray-200");
-
             } else {
-
                 button.innerText = "Follow";
-
                 button.classList.remove("bg-gray-200");
                 button.classList.add("bg-blue-500", "text-white");
-
             }
-
         });
 
+        // Fixed implementation for updating followers count
+        const followers = document.querySelector(".followers-count");
+        if (followers && data.followers_count !== undefined) {
+            followers.innerText = data.followers_count;
+        }
     })
-    .catch(error => console.log(error));
-
+    .catch(error => console.error("Error:", error));
 }
+
+
+
+
+
+//function toggleFollow(userId, url) {
+
+    //fetch(url, {
+      //  method: "POST",
+        //headers: {
+          //  "X-CSRFToken": getCookie("csrftoken"),
+            //"X-Requested-With": "XMLHttpRequest",
+        //}
+    //})
+    //.then(response => response.json())
+    //.then(data => {
+
+      //  const buttons = document.querySelectorAll(`.follow-btn-${userId}`);
+
+        //buttons.forEach(button => {
+
+          //  if (data.following) {
+
+//                button.innerText = "Following";
+
+  //              button.classList.remove("bg-blue-500", "text-white");
+//                button.classList.add("bg-gray-200");
+
+  //          } else {
+
+    //            button.innerText = "Follow";
+
+      //          button.classList.remove("bg-gray-200");
+        //        button.classList.add("bg-blue-500", "text-white");
+
+          //  }
+
+       // });
+
+    //})
+    //.catch(error => console.log(error));
+
+//}
 
 
 

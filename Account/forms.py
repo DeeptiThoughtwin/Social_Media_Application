@@ -322,7 +322,7 @@ class ProfileUpdateForm(forms.ModelForm):
             "profile_picture": forms.FileInput(
                 attrs={
                     "class":"hidden",
-                    "accept":"image/*"
+                    "accept":"profile_pictures/*"
                 }
             ),
 

@@ -12,7 +12,7 @@ urlpatterns = [
     path("",views.login,name="login"),
     path("logout/",views.logout,name="logout"),
     path("newprofile/",views.newProfile, name="newProfile"),
-
+    path("newcomments/",views.new_comment, name="new_comment"),
     path("home/",views.home,name="home"),
 
 
