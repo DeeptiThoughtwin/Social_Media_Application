@@ -11,7 +11,7 @@ class Comment(models.Model):
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
 
     class Meta:
-        ordering = ['created_on'] # Oldest first makes reading conversations easier
+        ordering = ['created_on'] 
 
     def __str__(self):
         return f"Comment by {self.author.username}"

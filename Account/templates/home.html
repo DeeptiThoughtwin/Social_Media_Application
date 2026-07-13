@@ -267,9 +267,23 @@
 </button>
 <!-- <span id="like-count-{{ post.id }}">{{ post.likes_count }}</span> -->
 
-      <button class="hover:scale-110 transition" onclick="openComments({{ post.id }})">
-       💬
-      </button>
+<!-- <button
+    onclick="openComments({{ post.id }})"
+    class="hover:scale-110 transition">
+
+    💬{{ post.comments.count }}
+
+</button> -->
+
+<button
+    onclick="openComments({{ post.id }})"
+    class="flex items-center gap-1 hover:scale-110 transition">
+
+    💬
+    <span class="text-sm text-gray-500">{{ post.comments.count }}</span>
+
+</button>
+
      </div>
     </div>
     <div class="px-3 text-sm font-semibold">
@@ -278,6 +292,7 @@
      </span>
      likes
     </div>
+    
     <div class="px-4 py-3">
      <p class="text-sm text-left leading-6 break-words">
       <span class="font-semibold mr-2">
@@ -300,7 +315,124 @@
   </div>
  </main>
 </div>
+<!-- Comment Popup -->
+<div id="commentModal"
+     class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+
+    <div class="bg-white w-full max-w-2xl max-h-[90vh] rounded-2xl overflow-hidden relative">
+
+        <button
+            onclick="closeComments()"
+            class="absolute top-3 right-4 text-3xl text-gray-500 hover:text-black z-10">
+
+            &times;
+
+        </button>
+
+        <div id="commentContent"
+             class="overflow-y-auto max-h-[90vh]">
+
+        </div>
+
+    </div>
+
+</div>
 <script>
+
+function toggleReplyForm(id)
+{
+    let form = document.getElementById("comment-submission-form");
+
+    let container = document.getElementById(`reply-form-container-${id}`);
+
+    let parentInput = document.getElementById("parent-id-input");
+
+    let title = document.getElementById("form-title");
+
+    let cancel = document.getElementById("cancel-reply-btn");
+
+    // Hide all reply containers
+    document.querySelectorAll("[id^='reply-form-container-']")
+        .forEach(el => el.classList.add("hidden"));
+
+    // Move form below selected comment
+    container.appendChild(form);
+    container.classList.remove("hidden");
+
+    // ⭐ Set parent id (IMPORTANT)
+    parentInput.value = id;
+
+    // Change title
+    title.innerText = "Replying to comment";
+
+    // Show cancel button
+    cancel.classList.remove("hidden");
+}
+
+
+function cancelReply()
+{
+    let form = document.getElementById("comment-submission-form");
+
+    let wrapper = document.getElementById("main-comment-form-wrapper");
+
+    let parentInput = document.getElementById("parent-id-input");
+
+    let title = document.getElementById("form-title");
+
+    let cancel = document.getElementById("cancel-reply-btn");
+
+    // Move form back to bottom
+    wrapper.appendChild(form);
+
+    // Hide all reply containers
+    document.querySelectorAll("[id^='reply-form-container-']")
+        .forEach(el => el.classList.add("hidden"));
+
+    // Clear parent id
+    parentInput.value = "";
+
+    // Restore title
+    title.innerText = "Join the conversation";
+
+    // Hide cancel button
+    cancel.classList.add("hidden");
+}
+
+function openComments(postId) {
+
+    const modal = document.getElementById("commentModal");
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    fetch(`/comments/comment/${postId}/`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById("commentContent").innerHTML = html;
+        });
+
+}
+
+function closeComments() {
+
+    const modal = document.getElementById("commentModal");
+
+    modal.classList.remove("flex");
+    modal.classList.add("hidden");
+
+    document.getElementById("commentContent").innerHTML = "";
+
+}
+
+document.getElementById("commentModal").addEventListener("click", function(e) {
+
+    if (e.target === this) {
+        closeComments();
+    }
+
+});
+
  document.addEventListener("DOMContentLoaded", function () {
 
     document.querySelectorAll(".caption").forEach(function(caption) {
@@ -315,6 +447,25 @@
         }
     });
 });
+
+function toggleChildren(id){
+
+    const children = document.getElementById(`children-${id}`);
+    const btn = document.getElementById(`reply-btn-${id}`);
+
+    if(children.classList.contains("hidden")){
+
+        children.classList.remove("hidden");
+        btn.innerText = "Hide replies";
+
+    }else{
+
+        children.classList.add("hidden");
+        btn.innerText = "View replies";
+
+    }
+}
+
 
 function toggleCaption(button) {
 
