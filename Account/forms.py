@@ -240,7 +240,7 @@ class UserUpdateForm(forms.ModelForm):
 
         model = User
 
-        fields = ["first_name","last_name","email",]
+        fields = ["first_name","last_name",]
 
         widgets = {
 

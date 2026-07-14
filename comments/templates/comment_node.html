@@ -1,8 +1,5 @@
 <div class="flex gap-3">
-
-    <!-- Profile -->
     <div class="flex-shrink-0">
-
         {% if node.author.profile.profile_picture %}
             <img
                 src="{{ node.author.profile.profile_picture.url }}"
@@ -13,13 +10,9 @@
                 {{ node.author.username|first|upper }}
             </div>
         {% endif %}
-
     </div>
-
-    <!-- Right Side -->
+    
     <div class="flex-1">
-
-        <!-- Comment -->
         <div class="bg-gray-100 rounded-2xl px-4 py-3">
 
             <h4 class="font-semibold text-sm">
@@ -29,78 +22,52 @@
             <p class="text-sm text-gray-700 mt-1">
                 {{ node.body }}
             </p>
-
         </div>
 
-        <!-- Actions -->
         <div class="flex items-center gap-5 mt-2 ml-2 text-xs text-gray-500">
-
             <span>{{ node.created_on|timesince }} ago</span>
-
             <button
                 onclick="toggleReplyForm('{{ node.id }}')"
                 class="hover:text-pink-600">
-
                 Reply
-
             </button>
             {% if request.user == node.author or request.user == post.user %}
             <form action="{% url 'delete_comment' node.id %}"
                 method="POST"
                 class="inline">
-
                 {% csrf_token %}
-
                 <button
                     type="submit"
                     onclick="return confirm('Delete this comment?')"
                     class="text-red-500 hover:text-red-700">
-
                     Delete
-
                 </button>
-
             </form>
             {% endif %}
 
             {% if node.replies.count %}
-
             <button
                 id="reply-btn-{{ node.id }}"
                 onclick="toggleChildren('{{ node.id }}')"
                 class="hover:text-pink-600 font-medium">
-
                 View replies ({{ node.replies.count }})
-
             </button>
-
             {% endif %}
-
         </div>
-
-        <!-- Reply Form -->
+        
         <div
             id="reply-form-container-{{ node.id }}"
             class="hidden mt-4">
         </div>
 
-        <!-- Replies -->
         {% if node.replies.count %}
-
         <div
             id="children-{{ node.id }}"
             class="hidden mt-5 ml-5 pl-5 border-l-2 border-gray-200 space-y-5">
-
             {% for child in node.replies.all %}
-
                 {% include "comment_node.html" with node=child %}
-
             {% endfor %}
-
         </div>
-
         {% endif %}
-
     </div>
-
 </div>

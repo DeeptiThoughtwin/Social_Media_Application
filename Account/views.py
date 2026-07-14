@@ -5,7 +5,6 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from .models import Profile,Follow
-from .forms import UserUpdateForm, ProfileUpdateForm
 from posts.models import Post,Like
 from Stories.models import Story
 from Stories.forms import StoryForm
@@ -121,22 +120,25 @@ def profile(request):
 def edit_profile(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
     if request.method == "POST":
+        # import pdb;pdb.set_trace()
         user_form = UserUpdateForm(request.POST,instance=request.user)
         profile_form = ProfileUpdateForm(request.POST,request.FILES,instance=profile)
 
+        
         # print("User Errors:", user_form.errors)
         # print("Profile Errors:", profile_form.errors)
 
-        if user_form.is_valid() and profile_form.is_valid():
+        if user_form.is_valid and profile_form.is_valid():
             user_form.save()
             profile_form.save()
             messages.success(request,"Profile updated successfully.")
             return redirect("profile")
+            print("user_form: ",user_form)
+            print("profile_form: ",profile_form)        
     else:
         user_form = UserUpdateForm(instance=request.user)
         profile_form = ProfileUpdateForm(instance=profile)
     return render(request,"profile/edit_profile.html",{"user_form": user_form,"profile_form": profile_form,"profile": profile})
-
 
 
 

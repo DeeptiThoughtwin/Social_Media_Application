@@ -10,105 +10,71 @@
 <body class="bg-pink-100">
 
 <div class="max-w-2xl mx-auto my-10 bg-white rounded-2xl shadow p-6">
-
-    <!-- Comment Count -->
     <div class="mb-6">
         <span class="px-4 py-2 text-3xl text-center font-bold text-pink-700 ">
              Comments
         </span>
     </div>
 
-    <!-- All Root Comments -->
     <div class="space-y-6">
-
         {% for comment in comments %}
-
             {% if comment.parent == None %}
-
                 {% include "comment_node.html" with node=comment %}
-
             {% endif %}
-
         {% empty %}
 
             <div class="text-center text-gray-400 py-10">
                 No comments yet.
             </div>
-
         {% endfor %}
-
     </div>
 
-
-    <!-- Main Form -->
     {% if user.is_authenticated %}
-
     <div id="main-comment-form-wrapper" class="mt-8 border-t pt-6">
-
         <h3 id="form-title"
-            class="text-lg font-semibold text-pink-600 mb-4">
-
-            
-
+            class="text-lg font-semibold text-pink-600 mb-4">           
         </h3>
 
         <form
             id="comment-submission-form"
             method="POST"
-            action="{% url 'comment_view' post.pk %}"
-        >
-
+            action="{% url 'comment_view' post.pk %}">
             {% csrf_token %}
-
             <input
                 type="hidden"
                 name="parent_id"
-                id="parent-id-input"
-            >
-
+                id="parent-id-input">
             <div>
-
                 {{ comment_form.as_p }}
-
             </div>
-
             <div class="flex gap-3 mt-4">
-
                 <button
                     type="submit"
                     class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded-xl">
-
                     Comment
-
                 </button>
-
                 <button
                     type="button"
                     id="cancel-reply-btn"
                     onclick="cancelReply()"
                     class="hidden bg-gray-300 px-6 py-2 rounded-xl">
-
                     Cancel
-
                 </button>
-
             </div>
-
         </form>
-
     </div>
-
     {% endif %}
-
 </div>
 
+
+
+
+
+
 <script>
-
 function toggleReplyForm(id){
-
     const form=document.getElementById("comment-submission-form");
     const container=document.getElementById("reply-form-container-"+id);
-
     document.querySelectorAll("[id^='reply-form-container-']")
     .forEach(div=>div.classList.add("hidden"));
 
@@ -116,17 +82,14 @@ function toggleReplyForm(id){
     container.appendChild(form);
 
     document.getElementById("parent-id-input").value=id;
-
     document.getElementById("form-title").innerText="Reply";
-
     document.getElementById("cancel-reply-btn").classList.remove("hidden");
-
 }
 
+
+
 function cancelReply(){
-
     const wrapper=document.getElementById("main-comment-form-wrapper");
-
     wrapper.appendChild(
         document.getElementById("comment-submission-form")
     );
@@ -135,37 +98,23 @@ function cancelReply(){
     .forEach(div=>div.classList.add("hidden"));
 
     document.getElementById("parent-id-input").value="";
-
-    document.getElementById("form-title").innerText="Join the conversation";
-
+    document.getElementById("form-title").innerText="Comment";
     document.getElementById("cancel-reply-btn").classList.add("hidden");
-
 }
+
 
 function toggleChildren(id){
-
     const children=document.getElementById("children-"+id);
-
     const btn=document.getElementById("reply-btn-"+id);
-
     if(children.classList.contains("hidden")){
-
         children.classList.remove("hidden");
-
         btn.innerText="Hide replies";
-
     }
-
     else{
-
         children.classList.add("hidden");
-
         btn.innerText="View replies";
-
     }
-
 }
-
 </script>
 
 </body>

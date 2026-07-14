@@ -54,23 +54,27 @@ INSTALLED_APPS = [
     'Stories',
     'comments',
 
-    'django.contrib.sites',
 
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.github',
-    # 'allauth.socialaccount.providers.linkedin_oauth2',
+    "django.contrib.sites",
+
+    
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+
+    
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.github",
     'allauth.socialaccount.providers.openid_connect',
 
 ]
 
 
+SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend'
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 
@@ -94,46 +98,25 @@ ROOT_URLCONF = 'Social_Media.urls'
 
 
 
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'SCOPE' : [
-#             'profile',
-#             'email'
-#         ],
-#         'APP': {
-#             'client_id': os.environ['CLIENT_ID'],
-#             'secret': os.environ['CLIENT_SECRET'],
-#         },
-#         'AUTH_PARAMS': {
-#             'access_type':'online',
-#         }
-#     },
+SSOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        }
+    },
+    "github": {
+        "SCOPE": [
+            "user",
+            "user:email",
+        ]
+    }
+}
+    
 
-#     "github": {
-#         "VERIFIED_EMAIL": True,
-#         "APP": {
-#             "client_id": os.environ["GITHUB_CLIENT_ID"],
-#             "secret": os.environ["GITHUB_CLIENT_SECRET"],
-
-
-#         },
-#     },
-
-#     'openid_connect': {
-#         'APPS': [
-#             {
-#                 'provider_id': 'linkedin',
-#                 'name': 'LinkedIn',
-#                 'client_id': os.environ.get('LINKEDIN_CLIENT_ID'),
-#                 'secret': os.environ.get('LINKEDIN_CLIENT_SECRET'),
-#                 'settings': {
-#                     'server_url': 'https://linkedin.com',
-#                 }
-#             }
-#         ]
-#     },
-
-# }
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
@@ -284,3 +267,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 # print(MEDIA_URL)
 # print(MEDIA_ROOT)
 # print(STATIC_URL)
+
+
+

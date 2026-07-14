@@ -95,11 +95,32 @@
 
         <div class="relative flex py-4 items-center">
             <div class="flex-grow border-t border-gray-300"></div>
-            <span class="flex-shrink mx-4 text-gray-400 text-xs uppercase font-sans">Or connect with</span>
+            <span class="flex-shrink mx-4 text-gray-600 text-xs uppercase font-sans">Or connect with</span>
             <div class="flex-grow border-t border-gray-300"></div>
+        </div>ext-g
+
+        <div class="relative w-full flex  items-center">
+        <a href="{% provider_login_url 'google' %}" class="px-4 py-1 w-full mb-2 text-sm text-black tray-500 rounded-md border hover:text-purple-500 transition duration-300">
+            Sign Up with Google
+        </a>
+        </div>
+
+        <div class="relative w-full flex  items-center">
+        <a href="{% provider_login_url 'github' %}" class="px-4 py-1 w-full mb-2 text-sm text-center text-black rounded-md border hover:text-purple-500 transition duration-300">
+            Sign Up with GitHub
+        </a>
+        </div>
+
+        <div class="relative w-full flex  items-center">
+        <a href="{% provider_login_url 'openid_connect' id='linkedin' %}" class="px-4 py-1 w-full  text-sm text-center ttext-black rounded-md border hover:text-purple-500 transition duration-300">
+            Sign Up with Linkdin
+        </a>
         </div>
 
         
+
+
+
 
         <p class="mt-6 text-center text-sm text-gray-600">
             Already have an account?
