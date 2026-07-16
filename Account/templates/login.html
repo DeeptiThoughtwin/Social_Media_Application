@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-
+{% load socialaccount %}
 
 {% block content %}
     <!-- <h2>Login</h2>
@@ -68,14 +68,39 @@
             Login
         </button>
 
+
     </form>
 
    
-    <p class="mt-4 text-center text-sm text-gray-600">
+    <p class="mt-4 text-center mb-3 text-sm text-gray-600">
         Don't have an account? <a href="{% url 'signup' %}" class="text-pink-600 hover:underline">Sign Up</a>
     </p>
+    <div class="relative flex py-4 items-center">
+            <div class="flex-grow border-t border-gray-300"></div>
+            <span class="flex-shrink mx-4 text-gray-600 text-xs uppercase font-sans">Or connect with</span>
+            <div class="flex-grow border-t border-gray-300"></div>
+    </div>
+
+    <div class="relative w-full flex  items-center">
+        <a href="{% provider_login_url 'google' %}" class="px-4 text-center py-1 w-full mb-2 text-sm text-pink-500 tray-500 rounded-md border hover:text-yellow-700 transition duration-300">
+            Sign Up with Google
+        </a>
+        </div>
+
+        <div class="relative w-full flex  items-center">
+        <a href="{% provider_login_url 'github' %}" class="px-4 py-1 w-full mb-2 text-sm text-center text-pink-500 rounded-md border hover:text-yellow-500 transition duration-300">
+            Sign Up with GitHub
+        </a>
+        </div>
+
+        <div class="relative w-full flex  items-center">
+        <a href="{% provider_login_url 'openid_connect' id='linkedin' %}" class="px-4 py-1 w-full  text-sm text-center text-pink-500 rounded-md border hover:text-yellow-500 transition duration-300">
+            Sign Up with Linkdin
+        </a>
+        </div>
 
 </div>
+
 
 </div>
 

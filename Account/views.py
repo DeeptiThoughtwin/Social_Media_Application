@@ -12,13 +12,16 @@ from .forms import RegistrationForm,LoginForm,UserUpdateForm,ProfileUpdateForm
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 
+
+
+
+
+
 @login_required
 def home(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-
     posts = Post.objects.all().order_by("-created_at")
     stories = Story.objects.all().order_by("-created_at")
-
     for post in posts:
         post.is_following = Follow.objects.filter(
             follower=request.user,
@@ -29,7 +32,6 @@ def home(request):
             user=request.user,
             post=post
         ).exists()
-
     context = {
         "profile": profile,
         "posts": posts,
@@ -38,7 +40,6 @@ def home(request):
         "following_count": Follow.objects.filter(follower=request.user).count(),
         "stories": stories,
     }
-
     return render(request, "home.html", context)
 
 def signup(request):
@@ -88,22 +89,16 @@ def logout(request):
 @login_required
 def profile(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-
     posts = Post.objects.filter(user=request.user).order_by("-created_at")
-
     for post in posts:
         post.is_liked = Like.objects.filter(
             user=request.user,
             post=post
         ).exists()
-
     followers_count = Follow.objects.filter(
-        following=request.user
-    ).count()
-
+        following=request.user).count()
     following_count = Follow.objects.filter(
-        follower=request.user
-    ).count()
+        follower=request.user).count()
 
     context = {
         "profile": profile,
@@ -113,7 +108,7 @@ def profile(request):
         "following_count": following_count,
     }
 
-    return render(request, "newprofile.html", context)
+    return render(request, "profile/profile.html", context)
 
 
 @login_required
@@ -143,14 +138,30 @@ def edit_profile(request):
 
 
 
+
+from django.contrib import messages
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST
+
+@login_required
+@require_POST
+def delete_profile(request):
+    user = request.user
+    logout(request)
+    user.delete()
+    messages.success(request, "Your account has been permanently deleted.")
+    return redirect('login')  
+
+
+
+
 @login_required
 def follow_user(request, user_id):
-
     user_to_follow = get_object_or_404(User, id=user_id)
-
     if request.user == user_to_follow:
         return JsonResponse({"error": "You cannot follow yourself."}, status=400)
-
     follow, created = Follow.objects.get_or_create(follower=request.user,following=user_to_follow)
     if created:
         following = True
@@ -160,7 +171,6 @@ def follow_user(request, user_id):
     followers_count = Follow.objects.filter(
         following=user_to_follow
     ).count()
-
     return JsonResponse({"following": following, "followers_count": followers_count})
 
 
@@ -179,11 +189,7 @@ def feed(request):
     })
 
 
-def newMenu(request):
-    return render(request,'newMenu.html')
 
-def newProfile(request):
-    return render(request,'newprofile.html')
 def new_comment(request):
     return render(request,'newcomments.html')
 

@@ -42,31 +42,29 @@ LOGOUT_REDIRECT_URL = "login"
 
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    
     "Account.apps.AccountConfig",
     'posts',
     'Notifications',
     'Stories',
     'comments',
 
-
-    "django.contrib.sites",
-
     
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-
-    
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.github",
     'allauth.socialaccount.providers.openid_connect',
 
+    
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    "django.contrib.sites",
 ]
 
 
@@ -153,8 +151,7 @@ WSGI_APPLICATION = 'Social_Media.wsgi.application'
 
 
 
-MAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@yourdomain.com'
+
 
 
 
@@ -168,6 +165,8 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+
+
 
 
 
@@ -219,6 +218,9 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+
+
 
 
 

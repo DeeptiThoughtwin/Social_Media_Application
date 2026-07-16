@@ -6,6 +6,7 @@ from comments.forms import CommentForm
 from .models import Comment
 from django.contrib.auth.decorators import login_required
 
+
 def comment_view(request, pk):  
     post = get_object_or_404(Post, pk=pk)
     comments = post.comments.filter(active=True) 
@@ -32,11 +33,10 @@ def comment_view(request, pk):
     })
 
 
+
 @login_required
 def delete_comment(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
-
     if request.user == comment.author or request.user == comment.post.user:
         comment.delete()
-
     return redirect(request.META.get("HTTP_REFERER", "home"))
