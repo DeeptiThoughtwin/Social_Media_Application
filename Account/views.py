@@ -19,6 +19,21 @@ from django.http import JsonResponse
 
 @login_required
 def home(request):
+    """
+    Display the home page for the logged -in user
+    => Retrives or creates the logged-in user's profile.
+    => fetches all posts and stories ordered by creation date.
+    => check the current user follows each post's author.
+    => check the current user has liked each post.
+    => calculates the user's post count,follower count and following count.
+    => passes all required data to the "home.html" template.
+
+    Args:
+        request(httprequest):the incoming http request.
+
+        returns:
+            httpResponse:Rendered home page with profile,posts,stories and user statistics.
+    """
     profile, created = Profile.objects.get_or_create(user=request.user)
     posts = Post.objects.all().order_by("-created_at")
     stories = Story.objects.all().order_by("-created_at")
@@ -43,6 +58,20 @@ def home(request):
     return render(request, "home.html", context)
 
 def signup(request):
+    """
+    handling user registration
+
+    displays the registration for get requests and processes the submitted form for post 
+    requests. If the form is valid a new user account is created a success msg is displayed
+    and the user is redirected to the login page.
+
+    Args:
+    request(httprequest):incomming http request
+
+    return: 
+        httpresponse: renders the signup page or redirects to the login page after successful 
+        registration.
+    """
     if request.method == "POST":
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -58,6 +87,22 @@ def signup(request):
 
 
 def login(request):
+    """Handle user authentication and login requests.
+
+    If a user is already authenticated they are redirected to the home page.
+    For a POST request the submitted login credentials are validated, the 
+    user is authenticated, and a success message is flashed upon a successful 
+    login. For a GET request, an empty login form is presented.
+
+    Args:
+        request (HttpRequest): The incoming HTTP request.
+
+    Returns:
+        HttpResponse: A redirect to the 'home' view if the user is already 
+            authenticated or loggedin successfully. Otherwise, returns a rendered 
+            HTML response containing the 'login.html'.
+    """
+
     if request.user.is_authenticated:
         return redirect("home")
     if request.method == "POST":
@@ -79,6 +124,17 @@ def login(request):
 
 @login_required
 def logout(request):
+    """Log out the current authenticated user.
+
+    Clears the active session data, displays a successful logout msg.
+    and routes the unauthenticated user back to the login screen.
+
+    Args:
+        request (HttpRequest): The incoming HTTP request.
+
+    Returns:
+        HttpResponseRedirect: A redirect response targeting the 'login' URL.
+    """
     auth_logout(request)
     messages.success(request, "You have been logged out.")
     return redirect("login") 
@@ -88,6 +144,19 @@ def logout(request):
 
 @login_required
 def profile(request):
+    """Display the authenticated user's profile dashboard.
+
+    Retrieves or create user's profile record fetches all of their 
+     posts, evaluates like states for each post, and total
+      followers, following counts, and posts.
+
+    Args:
+        request (HttpRequest): The incoming HTTP request.
+
+    Returns:
+        HttpResponse: A rendered HTML response loading the 'profile/profile.html' 
+            template.
+    """
     profile, created = Profile.objects.get_or_create(user=request.user)
     posts = Post.objects.filter(user=request.user).order_by("-created_at")
     for post in posts:
@@ -113,52 +182,75 @@ def profile(request):
 
 @login_required
 def edit_profile(request):
+    """Handle the modification of user profile data.
+    Fetches or creates the user's Profile record.
+    For a POST request, processes and validates both the user details
+    For a GET request, initializes both formspre-populated with the current user and profile instances.
+    Args:
+        request (HttpRequest): The incoming HTTP request .
+    Returns:
+        HttpResponse: A redirect to the 'profile' view upon a successful form submission, or a rendered HTML response showcasing the multi-form editing template with context variables.
+    """
     profile, created = Profile.objects.get_or_create(user=request.user)
     if request.method == "POST":
         # import pdb;pdb.set_trace()
         user_form = UserUpdateForm(request.POST,instance=request.user)
         profile_form = ProfileUpdateForm(request.POST,request.FILES,instance=profile)
-
-        
         # print("User Errors:", user_form.errors)
         # print("Profile Errors:", profile_form.errors)
-
         if user_form.is_valid and profile_form.is_valid():
             user_form.save()
             profile_form.save()
             messages.success(request,"Profile updated successfully.")
             return redirect("profile")
-            print("user_form: ",user_form)
-            print("profile_form: ",profile_form)        
+        print("user_form: ",user_form)
+        print("profile_form: ",profile_form)
     else:
         user_form = UserUpdateForm(instance=request.user)
         profile_form = ProfileUpdateForm(instance=profile)
+        
     return render(request,"profile/edit_profile.html",{"user_form": user_form,"profile_form": profile_form,"profile": profile})
 
 
 
 
-
-from django.contrib import messages
-from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.views.decorators.http import require_POST
-
 @login_required
-@require_POST
 def delete_profile(request):
+    """Permanently delete the authenticated user's account.
+
+    target the current user instance terminates their active authenticated 
+    session, removes their user record from the database  with cascading data.
+
+    Args:
+        request (HttpRequest): The incoming HTTP request.
+
+    Returns:
+        HttpResponseRedirect: A redirect response targeting the 'login' URL.
+    """
     user = request.user
-    logout(request)
+    auth_logout(request) 
     user.delete()
     messages.success(request, "Your account has been permanently deleted.")
     return redirect('login')  
 
 
 
-
 @login_required
 def follow_user(request, user_id):
+    """Toggle the follow state between the active user and a target user.
+
+    Validates that the target user exists and that the user is not attempting to 
+    follow themselves. If a relationship record does not exist, it creates one 
+    follow; if it already exists, it removes it unfollow.
+
+    Args:
+        request (HttpRequest): The incoming HTTP request.
+        user_id (int): The unique identifier of the target user to follow or unfollow.
+
+    Returns:
+        JsonResponse: A JSON response object containing the updated relationship boolean 
+        'following' and the total updated follower 'followers_count' for the target user.
+    """
     user_to_follow = get_object_or_404(User, id=user_id)
     if request.user == user_to_follow:
         return JsonResponse({"error": "You cannot follow yourself."}, status=400)
@@ -176,6 +268,19 @@ def follow_user(request, user_id):
 
 @login_required
 def feed(request):
+    """Fetch and display all posts and stories for the feed page.
+
+    Queries all existing   posts and user stories from the database,
+    ordering them from newest to oldest, and initializes an empty form
+    for creating a new story.
+
+    Args:
+        request (HttpRequest): The incoming HTTP request.
+
+    Returns:
+        HttpResponse: A rendered 'home.html' page populated with context data 
+            containing posts, stories, and the story form.
+    """
     posts = Post.objects.all().order_by("-created_at")
     stories = Story.objects.all().order_by("-created_at") 
     story_form = StoryForm()
@@ -190,7 +295,17 @@ def feed(request):
 
 
 
+@login_required
 def new_comment(request):
+    """Render the comment creation page or process a new comment submission.
+    Args:
+        request (HttpRequest): The incoming HTTP request.
+
+    Returns:
+        HttpResponse: The rendered 'newcomments.html' template.
+    """
+    return render(request, 'newcomments.html')
+
     return render(request,'newcomments.html')
 
 

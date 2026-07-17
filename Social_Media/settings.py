@@ -96,7 +96,7 @@ ROOT_URLCONF = 'Social_Media.urls'
 
 
 
-SSOCIALACCOUNT_PROVIDERS = {
+SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": [
             "profile",

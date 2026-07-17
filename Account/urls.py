@@ -2,10 +2,9 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from Account import views
-
+from posts import views as post_view
 
 urlpatterns = [
-
 
     path("signup/",views.signup,name="signup"),
     path("",views.login,name="login"),
@@ -15,9 +14,7 @@ urlpatterns = [
     path("home/",views.home,name="home"),
 
 
-
-
-   
+    path('<int:post_id>/', post_view.post_detail, name='post_detail'),
 
     path("follow/<int:user_id>/",views.follow_user,name="follow_user"),
   
