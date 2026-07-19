@@ -6,6 +6,7 @@ import re
 
 
 
+
 class RegistrationForm(UserCreationForm):
 
     username = forms.CharField(
@@ -73,6 +74,8 @@ class RegistrationForm(UserCreationForm):
 
 
 
+   
+
     def clean_username(self):
         username = self.cleaned_data["username"].strip()
 
@@ -94,24 +97,14 @@ class RegistrationForm(UserCreationForm):
                 "Username cannot be more than 20 characters."
             )
 
-        if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", username):
+        if not re.fullmatch(r"[a-z][a-z0-9_]*", username):
             raise forms.ValidationError(
-                "Username can contain only letters, numbers, and underscores."
+                "Username can contain only lowercase letters, numbers, and underscores."
             )
 
         if User.objects.filter(username__iexact=username).exists():
             raise forms.ValidationError(
                 "Username already exists."
-            )
-        
-        if not re.search(r"[A-Z]", username):
-            raise forms.ValidationError(
-        "Username must contain at least one uppercase letter."
-        )
-
-        if not re.search(r"[a-z]", username):
-            raise forms.ValidationError(
-                "Username must contain at least one lowercase letter."
             )
 
         return username
@@ -330,3 +323,23 @@ class ProfileUpdateForm(forms.ModelForm):
 
 
 
+
+
+class ForgotPasswordForm(forms.Form):
+    email = forms.EmailField()
+
+
+class OTPForm(forms.Form):
+    otp = forms.CharField(max_length=6)
+
+class ResetPasswordForm(forms.Form):
+    password1 = forms.CharField(widget=forms.PasswordInput)
+    password2 = forms.CharField(widget=forms.PasswordInput)
+
+    def clean(self):
+        cleaned = super().clean()
+
+        if cleaned["password1"] != cleaned["password2"]:
+            raise forms.ValidationError("Passwords do not match.")
+
+        return cleaned

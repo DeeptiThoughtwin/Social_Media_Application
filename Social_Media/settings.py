@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-a6z+f&w4+rvuc#($%0-wvzd7@2m%xm3r9_!4$&*sx!qw$3$ymj'
+# SECRET_KEY = 'django-insecure-a6z+f&w4+rvuc#($%0-wvzd7@2m%xm3r9_!4$&*sx!qw$3$ymj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -77,7 +77,25 @@ AUTHENTICATION_BACKENDS = [
 
 
 
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# EMAIL_HOST = "smtp.gmail.com"
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
 
+# EMAIL_HOST_USER = "deepti@thoughtwin.com"
+# EMAIL_HOST_PASSWORD = "qvipwkksopclnaad"
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+
+EMAIL_HOST_USER = "deepti@thoughtwin.com"
+EMAIL_HOST_PASSWORD = "abcdefghijklmnop"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
 MIDDLEWARE = [
@@ -112,8 +130,8 @@ SOCIALACCOUNT_PROVIDERS = {
             "user:email",
         ]
     }
+
 }
-    
 
 
 LOGIN_URL = 'login'
@@ -168,14 +186,8 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 
 
 
-
-
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-
-
-
 
 
 
@@ -197,27 +209,27 @@ LOGOUT_REDIRECT_URL = '/'
 #     }
 # }
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": os.environ.get('DB_NAME'),
-#         "USER": os.environ.get('DB_USER'),
-#         "PASSWORD": os.environ.get('DB_USER_PASSWORD'),
-#         "HOST": os.environ.get('DB_HOST'),
-#         "PORT": os.environ.get('DB_PORT'),
-#     }
-# }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get('DB_NAME'),
+        "USER": os.environ.get('DB_USER'),
+        "PASSWORD": os.environ.get('DB_USER_PASSWORD'),
+        "HOST": os.environ.get('DB_HOST'),
+        "PORT": os.environ.get('DB_PORT'),
+    }
+}
 
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 

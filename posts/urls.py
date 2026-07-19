@@ -11,6 +11,8 @@ urlpatterns = [
 
     path("post/<int:post_id>/", views.post_detail, name="post_detail"),
 
+    path("edit/<int:pk>/", views.edit_post, name="edit_post"),
+
 
 
 ]

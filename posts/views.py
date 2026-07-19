@@ -105,3 +105,26 @@ def post_detail(request, post_id):
     """
     post = get_object_or_404(Post, id=post_id)
     return render(request,"posts/post_detail.html",{"post": post})
+
+
+
+@login_required
+def edit_post(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+
+    if request.user != post.user:
+        return redirect("home")
+
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+
+        if form.is_valid():
+            form.save()
+            return redirect("profile")
+    else:
+        form = PostForm(instance=post)
+
+    return render(request, "posts/edit_post.html", {
+        "form": form,
+        "post": post,
+    })

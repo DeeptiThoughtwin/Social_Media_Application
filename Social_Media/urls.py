@@ -29,7 +29,7 @@ urlpatterns = [
     path('notifications/',include('Notifications.urls')),
     path('stories/',include('Stories.urls')),
     path('comments/',include('comments.urls')),
-    path('accounts/', include('allauth.urls')),
+    # path('accounts/', include('allauth.urls')),
  
 
     

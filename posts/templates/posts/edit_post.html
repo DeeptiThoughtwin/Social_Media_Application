@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-xl mx-auto mt-20 bg-white rounded-xl shadow-lg p-6">
+
+    <h2 class="text-2xl font-bold mb-6">
+        Edit Caption
+    </h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <textarea
+            name="caption"
+            rows="5"
+            class="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
+        >{{ post.caption }}</textarea>
+
+        <div class="flex gap-4 mt-5">
+            <button
+                type="submit"
+                class="bg-pink-500 text-white px-5 py-2 rounded-lg hover:bg-pink-600">
+                Save
+            </button>
+
+            <a href="{% url 'profile' %}"
+               class="bg-gray-300 px-5 py-2 rounded-lg hover:bg-gray-400">
+                Cancel
+            </a>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

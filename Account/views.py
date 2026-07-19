@@ -8,9 +8,16 @@ from .models import Profile,Follow
 from posts.models import Post,Like
 from Stories.models import Story
 from Stories.forms import StoryForm
-from .forms import RegistrationForm,LoginForm,UserUpdateForm,ProfileUpdateForm
+from .forms import RegistrationForm,LoginForm,UserUpdateForm,ProfileUpdateForm,ResetPasswordForm
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+import random
+from django.core.mail import send_mail
+from .models import PasswordResetOTP
+from .forms import ForgotPasswordForm
+from .forms import OTPForm
+from .models import PasswordResetOTP
+
 
 
 
@@ -77,12 +84,22 @@ def signup(request):
         if form.is_valid():
             form.save()
             username = form.cleaned_data["username"]
-            messages.success(request,f"Welcome {username}! Your account has been created.")
-            return redirect("login")
+            password = form.cleaned_data["password1"]
+            user = authenticate(
+                request,
+                username=username,
+                password=password
+            )
+            if user is not None:
+                auth_login(request, user)
+            messages.success(
+                request,
+                f"Welcome {username}! Your account has been created."
+            )
+            return redirect("home")
     else:
         form = RegistrationForm()
-    return render(request,"signup.html",{"form": form})
-
+    return render(request, "signup.html", {"form": form})
 
 
 
@@ -309,3 +326,73 @@ def new_comment(request):
     return render(request,'newcomments.html')
 
 
+
+
+
+def forgot_password(request):
+    if request.method == "POST":
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            user = User.objects.filter(email=email).first()
+            if user:
+                otp = str(random.randint(100000,999999))
+                PasswordResetOTP.objects.filter(user=user).delete()
+                PasswordResetOTP.objects.create(
+                    user=user,
+                    otp=otp
+                )
+                send_mail(
+                    "Password Reset OTP",
+                    f"Your OTP is {otp}",
+                    "deepti@thoughtwin.com",
+                    [email],
+                    fail_silently=False
+                )
+                request.session["reset_user"] = user.id
+                return redirect("password/verify_otp")
+    else:
+        form = ForgotPasswordForm()
+    return render(request,"password/forgot_password.html",{"form":form})
+
+
+def verify_otp(request):
+    user_id = request.session.get("reset_user")
+    if not user_id:
+        return redirect("password/forgot_password")
+    if request.method=="POST":
+        form = OTPForm(request.POST)
+        if form.is_valid():
+            otp = form.cleaned_data["otp"]
+            otp_obj = PasswordResetOTP.objects.filter(
+                user_id=user_id,
+                otp=otp
+            ).first()
+
+            if otp_obj:
+                return redirect("password/reset_password")
+    else:
+        form=OTPForm()
+    return render(request,"password/verify_otp.html",{"form":form})
+
+
+
+
+def reset_password(request):
+    user_id = request.session.get("reset_user")
+    if not user_id:
+        return redirect("forgot_password")
+    user = User.objects.get(id=user_id)
+    if request.method=="POST":
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            user.set_password(
+                form.cleaned_data["password1"]
+            )
+            user.save()
+            PasswordResetOTP.objects.filter(user=user).delete()
+            del request.session["reset_user"]
+            return redirect("login")
+    else:
+        form=ResetPasswordForm()
+    return render(request,"password/reset_password.html",{"form":form})
