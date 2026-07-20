@@ -8,7 +8,7 @@
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Log in</button>
-        <a href="{% url 'password_reset' %}">
+        <a href="{% url 'reset_password' %}">
         Forgot Password?
         </a>
     </form> -->
@@ -56,7 +56,7 @@
 
         
         <div class="text-right">
-             <a href="{% url 'password_reset' %}" class="text-sm text-pink-600 hover:underline">
+             <a href="{% url 'forgot_password' %}" class="text-sm text-pink-600 hover:underline">
                  Forgot Password?
              </a>
          </div>
@@ -81,25 +81,7 @@
             <div class="flex-grow border-t border-gray-300"></div>
     </div>
 
-    <div class="relative w-full flex  items-center">
-        <div>
-        <a href="{% provider_login_url 'google' %}" class="px-4 py-1 w-full mb-2 text-sm text-center text-black rounded-md border hover:text-purple-500 transition duration-300">
-            Sign Up with Google
-        </a>
-        </div>
-
-        <div class="relative w-full flex  items-center">
-        <a href="{% provider_login_url 'github' %}" class="px-4 py-1 w-full mb-2 text-sm text-center text-black rounded-md border hover:text-purple-500 transition duration-300">
-            Sign Up with GitHub
-        </a>
-        </div>
-
-        <div class="relative w-full flex  items-center">
-        <a href="{% provider_login_url 'openid_connect' id='linkedin' %}" class="px-4 py-1 w-full  text-sm text-center ttext-black rounded-md border hover:text-purple-500 transition duration-300">
-            Sign Up with Linkdin
-        </a>
-        </div>
-</div>
+    
 
 {% endblock content %}
 

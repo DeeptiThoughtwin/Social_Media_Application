@@ -16,23 +16,30 @@
         </div>
 
        
-        {% for story in stories %}
-        <div class="text-center flex-shrink-0">
-            <img
-                src="{{ story.image.url }}"
-                onclick="openStory(
-                    '{{ story.id }}',
-                    '{{ story.image.url }}',
-                    {% if story.user == request.user %}true{% else %}false{% endif %}
-                )"
-                class="w-20 h-20 rounded-full border-4 border-pink-500 object-cover cursor-pointer"
-                alt="story"
-            >
-            <p class="text-xs mt-2 text-gray-700">
-                {{ story.user.username }}
-            </p>
-        </div>
+            {% for story in stories %}
+                <div class="text-center flex-shrink-0">
+                    <img
+                        src="{{ story.image.url }}"
+                        onclick="openStory(
+                            '{{ story.id }}',
+                            '{{ story.image.url }}',
+                            {% if story.user == request.user %}true{% else %}false{% endif %}
+                        )"
+                        class="w-20 h-20 rounded-full border-4 border-pink-500 object-cover cursor-pointer"
+                        alt="story"
+                    >
+                    {% if story.user == request.user %}
+                        <p class="text-xs mt-2 text-gray-700">
+                            Your Story
+                        </p>
+                    {% else %}
+                        <p class="text-xs mt-2 text-gray-700">
+                            {{ story.user.username }}
+                        </p>
+                    {% endif %}
+                </div>
         {% endfor %}
+
 
     </div>
 </div>

@@ -131,7 +131,7 @@
       <?xml version="1.0" encoding="utf-8"?>
       <svg class="size-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M256 64c-56.8 0-107.9 24.7-143.1 64l47.1 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 192c-17.7 0-32-14.3-32-32L0 32C0 14.3 14.3 0 32 0S64 14.3 64 32l0 54.7C110.9 33.6 179.5 0 256 0 397.4 0 512 114.6 512 256S397.4 512 256 512c-87 0-163.9-43.4-210.1-109.7-10.1-14.5-6.6-34.4 7.9-44.6s34.4-6.6 44.6 7.9c34.8 49.8 92.4 82.3 157.6 82.3 106 0 192-86 192-192S362 64 256 64z"/></svg>
       <span>
-       <a href="{% url 'forgot_password' %}">
+       <a href="{% url 'reset_password' %}">
         Reset password
        </a>
        
@@ -192,7 +192,7 @@
       </path>
      </svg>
     </button>
-    <!-- Search Center -->
+    
     <!-- <div class="absolute left-1/2 -translate-x-1/2 w-full px-16 sm:px-20 md:px-0 md:w-auto">
 
                 <input
@@ -220,9 +220,8 @@
         </path>
        </svg>
       </a>
-      <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center" id="notification-badge">
-       0
-      </span>
+      <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold min-w-[18px] h-[18px] rounded-full hidden items-center justify-center" id="notification-badge"></span>
+
      </div>
     
      <a class="hidden sm:block bg-gradient-to-r from-pink-500 to-orange-400 text-white px-4 md:px-5 py-2 rounded-xl transition hover:scale-105" href="{% url 'create_post' %}">
@@ -244,12 +243,16 @@
    {% for post in posts %}
    <div class="bg-white rounded-xl shadow border">
     <div class="flex justify-between items-center p-4">
+        
      <div class="flex items-center gap-3">
-      {% if post.user.profile.profile_picture %}
-      <img class="w-10 h-10 rounded-full object-cover" src="{{ post.user.profile.profile_picture.url }}"/>
-      {% else %}
-      <img alt="" class="w-10 h-10 rounded-full object-cover" src="{% static 'images/default.jpg' %}"/>
-      {% endif %}
+      {% if profile.profile_picture %}
+            <img src="{{ profile.profile_picture.url }}"
+                    class="w-10 h-10 rounded-full object-cover">
+        {% else %}
+        
+            <img src="{% static 'images/default.jpg' %}"
+                    class="w-10 h-10 rounded-full object-cover">
+        {% endif %}
       <div>
        <p class="font-semibold">
         {{ post.user.username }}
@@ -258,65 +261,64 @@
       </div>
       
      </div>
+     <div class="flex gap-2">
+                {{ follow.follower.username }} 
+                {% if request.user != post.user %}
+                <button
+                    class="follow-btn-{{ post.user.id }} {% if post.is_following %}bg-gray-200{% else %}bg-blue-500 text-white{% endif %} px-4 py-1 rounded-md"
+                    onclick="toggleFollow(
+                        {{ post.user.id }},
+                        '{% url 'follow_user' post.user.id %}'
+                    )">
 
-            {{ follow.follower.username }} 
-            {% if request.user != post.user %}
-            <button
-                class="follow-btn-{{ post.user.id }} {% if post.is_following %}bg-gray-200{% else %}bg-blue-500 text-white{% endif %} px-4 py-1 rounded-md"
-                onclick="toggleFollow(
-                    {{ post.user.id }},
-                    '{% url 'follow_user' post.user.id %}'
-                )">
-
-                {% if post.is_following %}
-                    Following
-                {% else %}
-                    Follow
+                    {% if post.is_following %}
+                        Following
+                    {% else %}
+                        Follow
+                    {% endif %}
+                </button>
                 {% endif %}
-            </button>
-            {% endif %}
 
-            
-<div class="relative inline-block">
-
-    <!-- Menu Button -->
-    <button
-        class="menu-btn p-2 rounded-full hover:bg-gray-100"
-        data-post="{{ post.id }}">
-
-        <svg xmlns="http://www.w3.org/2000/svg"
-             class="w-6 h-6 text-gray-700"
-             fill="currentColor"
-             viewBox="0 0 24 24">
-            <circle cx="12" cy="5" r="1.7"/>
-            <circle cx="12" cy="12" r="1.7"/>
-            <circle cx="12" cy="19" r="1.7"/>
-        </svg>
-
-    </button>
-
-    <!-- Dropdown -->
-    <div id="menu-{{ post.id }}"
-         class="menu hidden absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border z-50">
-
+                
+    <div class="relative inline-block">
         <button
-        type="button"
-        onclick="openModal({{ post.id }}); closeMenu({{ post.id }})"
-        class="w-full text-left px-4 py-3 hover:bg-gray-100">
-    ✏️ Edit Caption
-    </button>
+            class="menu-btn p-2 rounded-full hover:bg-gray-100"
+            data-post="{{ post.id }}">
 
-        <a href="{% url 'delete_post' post.id %}"
-           onclick="return confirm('Delete this post?')"
-           class="block px-4 py-3 text-red-600 hover:bg-red-50">
-            🗑 Delete
-        </a>
+            <svg xmlns="http://www.w3.org/2000/svg"
+                class="w-6 h-6 text-gray-700"
+                fill="currentColor"
+                viewBox="0 0 24 24">
+                <circle cx="12" cy="5" r="1.7"/>
+                <circle cx="12" cy="12" r="1.7"/>
+                <circle cx="12" cy="19" r="1.7"/>
+            </svg>
+
+        </button>
+
+        <div id="menu-{{ post.id }}"
+            class="menu hidden absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border z-50">
+
+            <button
+            type="button"
+            onclick="openModal({{ post.id }}); closeMenu({{ post.id }})"
+            class="w-full text-left px-4 py-3 hover:bg-gray-100">
+        ✏️ Edit Caption
+        </button>
+
+            <a href="{% url 'delete_post' post.id %}"
+            onclick="return confirm('Delete this post?')"
+            class="block px-4 py-3 text-red-600 hover:bg-red-50">
+                🗑 Delete
+            </a>
+
+        </div>
 
     </div>
 
 </div>
 
-<!-- Edit Caption Modal -->
+
 <div id="editModal-{{ post.id }}"
      class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
 
@@ -584,10 +586,7 @@ function toggleFollow(userId, url) {
     })
     .then(response => response.json())
     .then(data => {
-        // Correctly select all buttons matching the user ID
         const buttons = document.querySelectorAll(`.follow-btn-${userId}`);
-
-        // Loop through every button found and update its state
         buttons.forEach(button => {
             if (data.following) {
                 button.innerText = "Following";
@@ -599,8 +598,6 @@ function toggleFollow(userId, url) {
                 button.classList.add("bg-blue-500", "text-white");
             }
         });
-
-        // Fixed implementation for updating followers count
         const followers = document.querySelector(".followers-count");
         if (followers && data.followers_count !== undefined) {
             followers.innerText = data.followers_count;
@@ -608,49 +605,6 @@ function toggleFollow(userId, url) {
     })
     .catch(error => console.error("Error:", error));
 }
-
-
-
-
-
-//function toggleFollow(userId, url) {
-
-    //fetch(url, {
-      //  method: "POST",
-        //headers: {
-          //  "X-CSRFToken": getCookie("csrftoken"),
-            //"X-Requested-With": "XMLHttpRequest",
-        //}
-    //})
-    //.then(response => response.json())
-    //.then(data => {
-
-      //  const buttons = document.querySelectorAll(`.follow-btn-${userId}`);
-
-        //buttons.forEach(button => {
-
-          //  if (data.following) {
-
-//                button.innerText = "Following";
-
-  //              button.classList.remove("bg-blue-500", "text-white");
-//                button.classList.add("bg-gray-200");
-
-  //          } else {
-
-    //            button.innerText = "Follow";
-
-      //          button.classList.remove("bg-gray-200");
-        //        button.classList.add("bg-blue-500", "text-white");
-
-          //  }
-
-       // });
-
-    //})
-    //.catch(error => console.log(error));
-
-//}
 
 
 
@@ -676,7 +630,6 @@ function getCookie(name) {
 }
 
 function toggleLike(postId, url) {
-
     fetch(url, {
         method: "POST",
         headers: {
@@ -771,22 +724,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const id = this.dataset.post;
             const currentMenu = document.getElementById("menu-" + id);
-
-            // Hide all other menus
             document.querySelectorAll(".menu").forEach(menu => {
                 if (menu !== currentMenu) {
                     menu.classList.add("hidden");
                 }
             });
-
-            // Toggle current menu
             currentMenu.classList.toggle("hidden");
 
         });
 
     });
-
-    // Hide menu when clicking anywhere else
     document.addEventListener("click", function () {
         document.querySelectorAll(".menu").forEach(menu => {
             menu.classList.add("hidden");

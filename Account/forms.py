@@ -66,9 +66,7 @@ class RegistrationForm(UserCreationForm):
     )
 
     class Meta:
-
         model = User
-
         fields = [ "username","first_name", "last_name", "email", "password1","password2",]
 
 
@@ -230,34 +228,27 @@ class LoginForm(AuthenticationForm):
 class UserUpdateForm(forms.ModelForm):
 
     class Meta:
-
         model = User
-
         fields = ["first_name","last_name",]
-
         widgets = {
-
             "first_name": forms.TextInput(
                 attrs={
                     "class":"w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500",
                     "placeholder":"First Name"
                 }
             ),
-
             "last_name": forms.TextInput(
                 attrs={
                     "class":"w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500",
                     "placeholder":"Last Name"
                 }
             ),
-
             "email": forms.EmailInput(
                 attrs={
                     "class":"w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500",
                     "placeholder":"Email Address"
                 }
             ),
-
         }
 
     def clean_email(self):
@@ -273,15 +264,10 @@ class UserUpdateForm(forms.ModelForm):
 
 
 class ProfileUpdateForm(forms.ModelForm):
-
     class Meta:
-
         model = Profile
-
         fields = ["profile_picture","bio","website","location","birth_date",]
-
         widgets = {
-
             "bio": forms.Textarea(
                 attrs={
                     "rows":5,
@@ -290,14 +276,12 @@ class ProfileUpdateForm(forms.ModelForm):
                     "placeholder":"Tell people about yourself..."
                 }
             ),
-
             "website": forms.URLInput(
                 attrs={
                     "class":"w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500",
                     "placeholder":"https://example.com"
                 }
             ),
-
             "location": forms.TextInput(
                 attrs={
                     "class":"w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500",
@@ -323,14 +307,39 @@ class ProfileUpdateForm(forms.ModelForm):
 
 
 
-
-
 class ForgotPasswordForm(forms.Form):
-    email = forms.EmailField()
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'Enter your registered email'
+        })
+    )
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+
+        if not User.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email address is not valid for this user.")            
+        return email
+
 
 
 class OTPForm(forms.Form):
     otp = forms.CharField(max_length=6)
+    widget=forms.EmailInput(attrs={
+        'placeholder': 'Enter 6 digit OTP',
+        "class":"text-red-500 text-sm"
+        })
+    def clean_otp(self):
+        """Cleans and validates the specific OTP field."""
+        otp = self.cleaned_data.get("otp")
+        
+        if otp and not otp.isdigit():
+            raise forms.ValidationError("The OTP must consist of numbers only.")
+            
+        return otp
+
+
+
+
 
 class ResetPasswordForm(forms.Form):
     password1 = forms.CharField(widget=forms.PasswordInput)

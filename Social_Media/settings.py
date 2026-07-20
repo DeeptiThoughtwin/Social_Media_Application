@@ -12,21 +12,16 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
-
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
-
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+load_dotenv(BASE_DIR / ".env", override=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-a6z+f&w4+rvuc#($%0-wvzd7@2m%xm3r9_!4$&*sx!qw$3$ymj'
+SECRET_KEY = 'django-insecure-a6z+f&w4+rvuc#($%0-wvzd7@2m%xm3r9_!4$&*sx!qw$3$ymj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -77,27 +72,6 @@ AUTHENTICATION_BACKENDS = [
 
 
 
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# EMAIL_HOST = "smtp.gmail.com"
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-
-# EMAIL_HOST_USER = "deepti@thoughtwin.com"
-# EMAIL_HOST_PASSWORD = "qvipwkksopclnaad"
-
-
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-
-
-EMAIL_HOST_USER = "deepti@thoughtwin.com"
-EMAIL_HOST_PASSWORD = "abcdefghijklmnop"
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -113,25 +87,27 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'Social_Media.urls'
 
 
-
 SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        }
+    'google': {
+        'APPS': [
+            {
+                'client_id': 'CLIENT_ID',
+                'secret': 'CLIENT_SECRET',
+                'key': ''
+            },
+        ]
     },
-    "github": {
-        "SCOPE": [
-            "user",
-            "user:email",
+    'github': {
+        'APPS': [
+            {
+                'client_id': 'GITHUB_CLIENT_ID',
+                'secret': 'GITHUB_CLIENT_SECRET',
+                'key': ''
+            },
         ]
     }
-
 }
+
 
 
 LOGIN_URL = 'login'
@@ -183,6 +159,8 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+
+
 
 
 
@@ -260,7 +238,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+
+
+
+TIME_ZONE = 'Asia/Kolkata'
+
 
 USE_I18N = True
 

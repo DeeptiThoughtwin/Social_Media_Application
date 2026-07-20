@@ -12,7 +12,7 @@
         Verify OTP
     </h2>
 
-    <form method="POST">
+    <form method="POST" novalidate>
         {% csrf_token %}
 
         <label class="block mb-2 font-medium">
@@ -26,6 +26,12 @@
             required
             class="w-full border rounded-lg p-3 mb-5 text-center tracking-widest text-xl">
 
+            {% if form.otp.errors %}
+                <div class="text-red-500 text-sm font-medium mt-1 mb-4">
+                    {{ form.otp.errors.0 }}
+                </div>
+            {% endif %}
+
         <button
             class="w-full bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-lg">
             Verify OTP
@@ -37,3 +43,5 @@
 
 </body>
 </html>
+
+

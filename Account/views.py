@@ -17,6 +17,7 @@ from .models import PasswordResetOTP
 from .forms import ForgotPasswordForm
 from .forms import OTPForm
 from .models import PasswordResetOTP
+from django.conf import settings
 
 
 
@@ -120,21 +121,25 @@ def login(request):
             HTML response containing the 'login.html'.
     """
 
+    # 1. First, check if the user is already logged in
     if request.user.is_authenticated:
         return redirect("home")
+        
+    # 2. If they are NOT logged in, handle the form processing (Notice the shift to the left)
     if request.method == "POST":
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password"]
-            user = authenticate(request,username=username,password=password)
+            user = authenticate(request, username=username, password=password)
             if user is not None:
                 auth_login(request, user)
-                messages.success(request,f"Welcome back {user.username}")
+                messages.success(request, f"Welcome back {user.username}")
                 return redirect("home")
     else:
         form = LoginForm()
-    return render(request,"login.html",{"form": form})
+    return render(request, "login.html", {"form": form})
+
 
 
 
@@ -322,8 +327,7 @@ def new_comment(request):
         HttpResponse: The rendered 'newcomments.html' template.
     """
     return render(request, 'newcomments.html')
-
-    return render(request,'newcomments.html')
+    
 
 
 
@@ -334,26 +338,37 @@ def forgot_password(request):
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data["email"]
+            # print("Entered Email:", email)
+            # print("User:", user)
             user = User.objects.filter(email=email).first()
             if user:
+                request.session["reset_user"] = user.id
                 otp = str(random.randint(100000,999999))
                 PasswordResetOTP.objects.filter(user=user).delete()
                 PasswordResetOTP.objects.create(
                     user=user,
                     otp=otp
                 )
+                # print("Checking email:", settings.EMAIL_HOST_USER)
+                # print("Checking password length:", len(settings.EMAIL_HOST_PASSWORD) if settings.EMAIL_HOST_PASSWORD else "None")
+                
+                user_email = request.POST.get('email') 
                 send_mail(
-                    "Password Reset OTP",
-                    f"Your OTP is {otp}",
-                    "deepti@thoughtwin.com",
-                    [email],
-                    fail_silently=False
-                )
+                'OTP Verification',                 
+                f'Your OTP code is: {otp}',         
+                settings.DEFAULT_FROM_EMAIL,          
+                [user.email],                
+                fail_silently=False,
+            )
+
                 request.session["reset_user"] = user.id
-                return redirect("password/verify_otp")
+                return redirect("verify_otp")
     else:
         form = ForgotPasswordForm()
     return render(request,"password/forgot_password.html",{"form":form})
+
+
+
 
 
 def verify_otp(request):
@@ -370,10 +385,19 @@ def verify_otp(request):
             ).first()
 
             if otp_obj:
-                return redirect("password/reset_password")
+                return redirect("reset_password")
+
+            else:
+                form.add_error("otp", "OTP you entered is incorrect or expired.")
     else:
         form=OTPForm()
     return render(request,"password/verify_otp.html",{"form":form})
+
+
+
+
+ 
+
 
 
 
@@ -392,7 +416,7 @@ def reset_password(request):
             user.save()
             PasswordResetOTP.objects.filter(user=user).delete()
             del request.session["reset_user"]
-            return redirect("login")
+            return redirect("home")
     else:
         form=ResetPasswordForm()
     return render(request,"password/reset_password.html",{"form":form})

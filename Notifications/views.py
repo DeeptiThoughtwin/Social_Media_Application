@@ -19,10 +19,11 @@ def notifications(request):
         HttpResponse: The rendered 'notifications.html' template populated 
             with the user's notifications.
     """
-    notifications = Notification.objects.filter(
-        receiver=request.user
-    ).order_by("-created_at")
-    notifications.update(is_read=True)
+    notifications = list(
+        Notification.objects.filter(receiver=request.user).order_by("-created_at")
+    )
+    
+    Notification.objects.filter(receiver=request.user, is_read=False).update(is_read=True)
 
     return render(
         request,
@@ -31,6 +32,8 @@ def notifications(request):
             "notifications": notifications
         }
     )
+
+    
 
 
 @login_required
@@ -54,3 +57,5 @@ def notification_count(request):
     return JsonResponse({
         "count": count
     })
+
+
