@@ -4,44 +4,35 @@ from django.contrib.auth import views as auth_views
 from Account import views
 from posts import views as post_view
 
+
 urlpatterns = [
 
-    path("signup/",views.signup,name="signup"),
-    path("",views.login,name="login"),
-    path("logout/",views.logout,name="logout"),
+    path("signup/", views.SignupView.as_view(), name="signup"),
+    path("", views.LoginView.as_view(), name="login"),
+    path("logout/", views.LogoutView.as_view(), name="logout"),
     
-    path("newcomments/",views.new_comment, name="new_comment"),
-    path("home/",views.home,name="home"),
+    path("newcomments/", views.NewCommentView.as_view(), name="new_comment"),
+    path("home/", views.HomeView.as_view(), name="home"),
+
     
 
+    path('<int:post_id>/',post_view.PostDetailView.as_view(), name='post_detail'),
+    path("follow/<int:user_id>/",views.FollowUserView.as_view(),name="follow_user"),
 
-    path('<int:post_id>/', post_view.post_detail, name='post_detail'),
+    
 
-    path("follow/<int:user_id>/",views.follow_user,name="follow_user"),
-  
-
-    path("profile/",views.profile,name="profile"),
-    path("edit-profile/",views.edit_profile,name="edit_profile"),
-    path('profile/delete/', views.delete_profile, name='delete_profile'),
-
+    path("profile/",views.ProfileView.as_view(),name="profile"),
+    path("edit-profile/",views.EditProfileView.as_view(),name="edit_profile"),
+    path('profile/delete/',views.DeleteProfileView.as_view(), name='delete_profile'),
 
    
 
-    # path("password_reset/",auth_views.PasswordResetView.as_view(template_name="registration/password_reset_form.html"),name="password_reset"),
-    # path("password_reset/done/",auth_views.PasswordResetDoneView.as_view(template_name="registration/password_reset_done.html"),name="password_reset_done"),
-    # path("reset/<uidb64>/<token>/",auth_views.PasswordResetConfirmView.as_view(template_name="registration/password_reset_confirm.html"),name="password_reset_confirm"),
-    # path("reset/done/",auth_views.PasswordResetCompleteView.as_view(template_name="registration/password_reset_complete.html"),name="password_reset_complete"),
 
-
-
-
-    path("forgot-password/",views.forgot_password,name="forgot_password"),
-    path("verify-otp/",views.verify_otp,name="verify_otp"),
-    path("reset-password/",views.reset_password,name="reset_password"),
+    path("forgot-password/",views.ForgotPasswordView.as_view(),name="forgot_password"),
+    path("verify-otp/",views.VerifyOTPView.as_view(),name="verify_otp"),
+    path("reset-password/",views.ResetPasswordView.as_view(),name="reset_password"),
 
     
 ]
-
-
 
 

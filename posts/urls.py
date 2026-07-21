@@ -2,17 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-
-    path("create/", views.create_post, name="create_post"),
-
-    path("delete/<int:post_id>/", views.delete_post, name="delete_post"),
-
-    path("like/<int:post_id>/", views.like_post, name="like_post"),
-
-    path("post/<int:post_id>/", views.post_detail, name="post_detail"),
-
-    path("edit/<int:pk>/", views.edit_post, name="edit_post"),
-
-
+    path("create/", views.CreatePostView.as_view(), name="create_post"),
+    path("like/<int:post_id>/",views.LikePostView.as_view(),name="like_post"),
+    path("post/<int:post_id>/",views.PostDetailView.as_view(),name="post_detail"),
+    path("edit/<int:pk>/",views.EditPostView.as_view(),name="edit_post"),
+    path("delete/<int:pk>/",views.DeletePostView.as_view(),name="delete_post"),
 
 ]

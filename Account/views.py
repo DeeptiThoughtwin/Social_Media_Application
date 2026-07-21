@@ -1,422 +1,506 @@
-from django.shortcuts import render, redirect,get_object_or_404
+from django.shortcuts import redirect, render
+from django.views import View
 from django.contrib import messages
-from django.contrib.auth import authenticate
-from django.contrib.auth import login as auth_login
+from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth import logout as auth_logout
-from django.contrib.auth.decorators import login_required
-from .models import Profile,Follow
-from posts.models import Post,Like
-from Stories.models import Story
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Follow, Profile
+from posts.models import Like, Post
 from Stories.forms import StoryForm
-from .forms import RegistrationForm,LoginForm,UserUpdateForm,ProfileUpdateForm,ResetPasswordForm
+from Stories.models import Story
+from .forms import ProfileUpdateForm, UserUpdateForm
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-import random
-from django.core.mail import send_mail
-from .models import PasswordResetOTP
-from .forms import ForgotPasswordForm
-from .forms import OTPForm
-from .models import PasswordResetOTP
+from django.shortcuts import get_object_or_404
 from django.conf import settings
+from django.core.mail import send_mail
+import random
 
-
-
-
-
-
-
-@login_required
-def home(request):
+class HomeView(LoginRequiredMixin, View):
     """
-    Display the home page for the logged -in user
-    => Retrives or creates the logged-in user's profile.
-    => fetches all posts and stories ordered by creation date.
-    => check the current user follows each post's author.
-    => check the current user has liked each post.
-    => calculates the user's post count,follower count and following count.
-    => passes all required data to the "home.html" template.
-
-    Args:
-        request(httprequest):the incoming http request.
-
-        returns:
-            httpResponse:Rendered home page with profile,posts,stories and user statistics.
+    Display the home page for the authenticated user.
+    Retrieves or creates the user's profile, fetches all posts and
+    stories, checks follow and like status for each post, and calculates
+    user statistics such as post count, followers count, and following
+    count.
     """
-    profile, created = Profile.objects.get_or_create(user=request.user)
-    posts = Post.objects.all().order_by("-created_at")
-    stories = Story.objects.all().order_by("-created_at")
-    for post in posts:
-        post.is_following = Follow.objects.filter(
-            follower=request.user,
-            following=post.user
-        ).exists()
 
-        post.is_liked = Like.objects.filter(
-            user=request.user,
-            post=post
-        ).exists()
-    context = {
-        "profile": profile,
-        "posts": posts,
-        "posts_count": Post.objects.filter(user=request.user).count(),
-        "followers_count": Follow.objects.filter(following=request.user).count(),
-        "following_count": Follow.objects.filter(follower=request.user).count(),
-        "stories": stories,
-    }
-    return render(request, "home.html", context)
+    login_url = "login"
 
-def signup(request):
+    def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests for the home page.
+        Args:
+            request (HttpRequest): The incoming HTTP request.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        Returns:
+            HttpResponse: The rendered home page containing the user's
+            profile, posts, stories, and account statistics.
+        """
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        posts = Post.objects.all().order_by("-created_at")
+        stories = Story.objects.all().order_by("-created_at")
+        for post in posts:
+            post.is_following = Follow.objects.filter(follower=request.user,following=post.user,).exists()
+            post.is_liked = Like.objects.filter(user=request.user,post=post,).exists()
+        context = {
+            "profile": profile,
+            "posts": posts,
+            "posts_count": Post.objects.filter(user=request.user).count(),
+            "followers_count": Follow.objects.filter(following=request.user).count(),
+            "following_count": Follow.objects.filter(follower=request.user).count(),
+            "stories": stories,
+        }
+        return render(request,"home.html",context)
+
+
+
+
+
+class SignupView(View):
     """
-    handling user registration
-
-    displays the registration for get requests and processes the submitted form for post 
-    requests. If the form is valid a new user account is created a success msg is displayed
-    and the user is redirected to the login page.
-
-    Args:
-    request(httprequest):incomming http request
-
-    return: 
-        httpresponse: renders the signup page or redirects to the login page after successful 
-        registration.
+    Handle user registration requests.
+    Displays the registration form for GET requests and processes the
+    submitted form for POST requests. If registration succeeds, the
+    user is authenticated, logged in, and redirected to the home page.
     """
-    if request.method == "POST":
+
+    def get(self, request, *args, **kwargs):
+        """
+        Display the registration form.
+        Args:
+            request (HttpRequest): The incoming HTTP request.
+        Returns:
+            HttpResponse: The rendered signup page.
+        """
+        form = RegistrationForm()
+        return render(request, "signup.html", {"form": form})
+
+    def post(self, request, *args, **kwargs):
+        """
+        Process the submitted registration form.
+        Args:
+            request (HttpRequest): The incoming HTTP request.
+        Returns:
+            HttpResponse: A redirect to the home page if registration
+            succeeds; otherwise, the rendered form with validation errors.
+        """
         form = RegistrationForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password1"]
-            user = authenticate(
-                request,
-                username=username,
-                password=password
-            )
+            user = authenticate(request,username=username,password=password)
             if user is not None:
                 auth_login(request, user)
-            messages.success(
-                request,
-                f"Welcome {username}! Your account has been created."
-            )
+            messages.success(request,f"Welcome {username}! Your account has been created.")
             return redirect("home")
-    else:
-        form = RegistrationForm()
-    return render(request, "signup.html", {"form": form})
+        return render(request, "signup.html", {"form": form})
 
 
 
-def login(request):
-    """Handle user authentication and login requests.
 
-    If a user is already authenticated they are redirected to the home page.
-    For a POST request the submitted login credentials are validated, the 
-    user is authenticated, and a success message is flashed upon a successful 
-    login. For a GET request, an empty login form is presented.
-
-    Args:
-        request (HttpRequest): The incoming HTTP request.
-
-    Returns:
-        HttpResponse: A redirect to the 'home' view if the user is already 
-            authenticated or loggedin successfully. Otherwise, returns a rendered 
-            HTML response containing the 'login.html'.
+class LoginView(View):
     """
+    Authenticate and log in a user.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Display the login form.
+        Returns:
+            HttpResponse: The rendered login page.
+        """
+        if request.user.is_authenticated:
+            return redirect("home")
+        form = LoginForm()
+        return render(request, "login.html", {"form": form})
 
-    # 1. First, check if the user is already logged in
-    if request.user.is_authenticated:
-        return redirect("home")
-        
-    # 2. If they are NOT logged in, handle the form processing (Notice the shift to the left)
-    if request.method == "POST":
+    def post(self, request, *args, **kwargs):
+        """
+        Authenticate the submitted credentials.
+        Returns:
+            HttpResponse: Redirects to the home page on successful login
+            or re-renders the login form with validation errors.
+        """
+        if request.user.is_authenticated:
+            return redirect("home")
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data["username"]
-            password = form.cleaned_data["password"]
-            user = authenticate(request, username=username, password=password)
+            user = authenticate(
+                request,
+                username=form.cleaned_data["username"],
+                password=form.cleaned_data["password"]
+                )
             if user is not None:
                 auth_login(request, user)
-                messages.success(request, f"Welcome back {user.username}")
+                messages.success(request,f"Welcome back {user.username}")
                 return redirect("home")
-    else:
-        form = LoginForm()
-    return render(request, "login.html", {"form": form})
+        return render(request, "login.html", {"form": form})
 
 
 
 
 
-@login_required
-def logout(request):
-    """Log out the current authenticated user.
-
-    Clears the active session data, displays a successful logout msg.
-    and routes the unauthenticated user back to the login screen.
-
-    Args:
-        request (HttpRequest): The incoming HTTP request.
-
-    Returns:
-        HttpResponseRedirect: A redirect response targeting the 'login' URL.
+class LogoutView(View):
     """
-    auth_logout(request)
-    messages.success(request, "You have been logged out.")
-    return redirect("login") 
-
-
-
-
-@login_required
-def profile(request):
-    """Display the authenticated user's profile dashboard.
-
-    Retrieves or create user's profile record fetches all of their 
-     posts, evaluates like states for each post, and total
-      followers, following counts, and posts.
-
-    Args:
-        request (HttpRequest): The incoming HTTP request.
-
-    Returns:
-        HttpResponse: A rendered HTML response loading the 'profile/profile.html' 
-            template.
+    Log out the authenticated user.
+    Terminates the current user session, displays a success message,
+    and redirects the user to the login page.
     """
-    profile, created = Profile.objects.get_or_create(user=request.user)
-    posts = Post.objects.filter(user=request.user).order_by("-created_at")
-    for post in posts:
-        post.is_liked = Like.objects.filter(
-            user=request.user,
-            post=post
-        ).exists()
-    followers_count = Follow.objects.filter(
-        following=request.user).count()
-    following_count = Follow.objects.filter(
-        follower=request.user).count()
-
-    context = {
-        "profile": profile,
-        "posts": posts,
-        "posts_count": posts.count(),
-        "followers_count": followers_count,
-        "following_count": following_count,
-    }
-
-    return render(request, "profile/profile.html", context)
+    def get(self, request, *args, **kwargs):
+        """
+        Log out the current user.
+        Args:
+            request (HttpRequest): The incoming HTTP request.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        Returns:
+            HttpResponseRedirect: Redirects to the login page after
+            successfully logging out the user.
+        """
+        auth_logout(request)
+        messages.success(request, "You have been logged out.")
+        return redirect("login")
 
 
-@login_required
-def edit_profile(request):
-    """Handle the modification of user profile data.
-    Fetches or creates the user's Profile record.
-    For a POST request, processes and validates both the user details
-    For a GET request, initializes both formspre-populated with the current user and profile instances.
-    Args:
-        request (HttpRequest): The incoming HTTP request .
-    Returns:
-        HttpResponse: A redirect to the 'profile' view upon a successful form submission, or a rendered HTML response showcasing the multi-form editing template with context variables.
+
+
+class ProfileView(LoginRequiredMixin, View):
     """
-    profile, created = Profile.objects.get_or_create(user=request.user)
-    if request.method == "POST":
-        # import pdb;pdb.set_trace()
+    Display the authenticated user's profile.
+    Retrieves the user's profile information, posts, and account
+    statistics, then renders the profile page.
+    """
+    login_url = "login"
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests for the profile page.
+
+        Retrieves or creates the user's profile, fetches the user's
+        posts, determines the like status for each post, and calculates
+        the follower, following, and post counts.
+        Args:
+            request (HttpRequest): The incoming HTTP request.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        Returns:
+            HttpResponse: The rendered profile page with the user's
+            profile information and statistics.
+        """
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        posts = Post.objects.filter(user=request.user).order_by("-created_at")
+        for post in posts:
+            post.is_liked = Like.objects.filter(user=request.user,post=post).exists()
+        context = {
+            "profile": profile,
+            "posts": posts,
+            "posts_count": posts.count(),
+            "followers_count": Follow.objects.filter(following=request.user).count(),
+            "following_count": Follow.objects.filter(follower=request.user).count(),
+        }
+        return render(request, "profile/profile.html", context)
+
+
+
+
+
+class EditProfileView(LoginRequiredMixin, View):
+    """
+    Allow the authenticated user to update their profile information.
+    Displays the profile editing forms for GET requests and processes
+    the submitted forms for POST requests.
+    """
+
+    login_url = "login"
+
+    def get(self, request, *args, **kwargs):
+        """
+        Display the profile editing forms.
+        Args:
+            request (HttpRequest): The incoming HTTP request.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        Returns:
+            HttpResponse: The rendered profile editing page.
+        """
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        context = {
+            "user_form": UserUpdateForm(instance=request.user),
+            "profile_form": ProfileUpdateForm(instance=profile),
+            "profile": profile,
+        }
+        return render(request, "profile/edit_profile.html", context)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Process the submitted profile update forms.
+        Validates and saves both the user and profile forms. If both
+        forms are valid, the user's profile is updated and the user is
+        redirected to the profile page.
+        Args:
+            request (HttpRequest): The incoming HTTP request.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        Returns:
+            HttpResponse: A redirect to the profile page if the forms are
+            valid; otherwise, the rendered editing page with validation
+            errors.
+        """
+        profile, _ = Profile.objects.get_or_create(user=request.user)
         user_form = UserUpdateForm(request.POST,instance=request.user)
         profile_form = ProfileUpdateForm(request.POST,request.FILES,instance=profile)
-        # print("User Errors:", user_form.errors)
-        # print("Profile Errors:", profile_form.errors)
-        if user_form.is_valid and profile_form.is_valid():
+        if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
             messages.success(request,"Profile updated successfully.")
             return redirect("profile")
-        print("user_form: ",user_form)
-        print("profile_form: ",profile_form)
-    else:
-        user_form = UserUpdateForm(instance=request.user)
-        profile_form = ProfileUpdateForm(instance=profile)
-        
-    return render(request,"profile/edit_profile.html",{"user_form": user_form,"profile_form": profile_form,"profile": profile})
+        context = {
+            "user_form": user_form,
+            "profile_form": profile_form,
+            "profile": profile,
+        }
+        return render(request, "profile/edit_profile.html", context)
 
 
 
 
-@login_required
-def delete_profile(request):
-    """Permanently delete the authenticated user's account.
 
-    target the current user instance terminates their active authenticated 
-    session, removes their user record from the database  with cascading data.
 
-    Args:
-        request (HttpRequest): The incoming HTTP request.
-
-    Returns:
-        HttpResponseRedirect: A redirect response targeting the 'login' URL.
+class DeleteProfileView(LoginRequiredMixin, View):
     """
-    user = request.user
-    auth_logout(request) 
-    user.delete()
-    messages.success(request, "Your account has been permanently deleted.")
-    return redirect('login')  
-
-
-
-@login_required
-def follow_user(request, user_id):
-    """Toggle the follow state between the active user and a target user.
-
-    Validates that the target user exists and that the user is not attempting to 
-    follow themselves. If a relationship record does not exist, it creates one 
-    follow; if it already exists, it removes it unfollow.
-
-    Args:
-        request (HttpRequest): The incoming HTTP request.
-        user_id (int): The unique identifier of the target user to follow or unfollow.
-
-    Returns:
-        JsonResponse: A JSON response object containing the updated relationship boolean 
-        'following' and the total updated follower 'followers_count' for the target user.
+    Permanently delete the authenticated user's account.
+    Logs out the current user, deletes the associated user account,
+    displays a success message, and redirects to the login page.
     """
-    user_to_follow = get_object_or_404(User, id=user_id)
-    if request.user == user_to_follow:
-        return JsonResponse({"error": "You cannot follow yourself."}, status=400)
-    follow, created = Follow.objects.get_or_create(follower=request.user,following=user_to_follow)
-    if created:
-        following = True
-    else:
-        follow.delete()
-        following = False
-    followers_count = Follow.objects.filter(
-        following=user_to_follow
-    ).count()
-    return JsonResponse({"following": following, "followers_count": followers_count})
+    login_url = "login"
+    def post(self, request, *args, **kwargs):
+        """
+        Delete the authenticated user's account.
+        Args:
+            request (HttpRequest): The incoming HTTP request.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        Returns:
+            HttpResponseRedirect: Redirects to the login page after
+            successfully deleting the user account.
+        """
+        user = request.user
+        auth_logout(request)
+        user.delete()
+        messages.success(request,"Your account has been permanently deleted.")
+        return redirect("login")
 
 
-@login_required
-def feed(request):
-    """Fetch and display all posts and stories for the feed page.
 
-    Queries all existing   posts and user stories from the database,
-    ordering them from newest to oldest, and initializes an empty form
-    for creating a new story.
 
-    Args:
-        request (HttpRequest): The incoming HTTP request.
 
-    Returns:
-        HttpResponse: A rendered 'home.html' page populated with context data 
-            containing posts, stories, and the story form.
+class FollowUserView(LoginRequiredMixin, View):
     """
-    posts = Post.objects.all().order_by("-created_at")
-    stories = Story.objects.all().order_by("-created_at") 
-    story_form = StoryForm()
-
-    # print(stories)
-
-    return render(request, "home.html", {
-        "posts": posts,
-        "stories": stories,
-        "story_form": story_form,
-    })
-
-
-
-@login_required
-def new_comment(request):
-    """Render the comment creation page or process a new comment submission.
-    Args:
-        request (HttpRequest): The incoming HTTP request.
-
-    Returns:
-        HttpResponse: The rendered 'newcomments.html' template.
+    Toggle the follow status for a user.
+    Creates a follow relationship if one does not exist. Otherwise,
+    removes the existing follow relationship.
     """
-    return render(request, 'newcomments.html')
+    login_url = "login"
+    def post(self, request, user_id, *args, **kwargs):
+        """
+        Follow or unfollow the specified user.
+        Args:
+            request (HttpRequest): The incoming HTTP request.
+            user_id (int): The ID of the user to follow or unfollow.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        Returns:
+            JsonResponse: A JSON response containing the updated follow
+            status and follower count.
+        """
+        user_to_follow = get_object_or_404(User, id=user_id)
+        if request.user == user_to_follow:
+            return JsonResponse({"error": "You cannot follow yourself."},status=400)
+        follow, created = Follow.objects.get_or_create(follower=request.user,following=user_to_follow)
+        if created:
+            following = True
+        else:
+            follow.delete()
+            following = False
+        followers_count = Follow.objects.filter(following=user_to_follow).count()
+        return JsonResponse(
+            {
+                "following": following,
+                "followers_count": followers_count,
+            }
+        )
+
+
+
+class FeedView(LoginRequiredMixin, View):
+    """
+    Display the user's feed.
+    Retrieves all posts and stories ordered by creation date and
+    initializes a form for creating a new story.
+    """
+    login_url = "login"
+    def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests for the feed page.
+        Args:
+            request (HttpRequest): The incoming HTTP request.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        Returns:
+            HttpResponse: The rendered home page containing posts,
+            stories, and the story creation form.
+        """
+        posts = Post.objects.all().order_by("-created_at")
+        stories = Story.objects.all().order_by("-created_at")
+        story_form = StoryForm()
+        context = {
+            "posts": posts,
+            "stories": stories,
+            "story_form": story_form,
+        }
+        return render(request, "home.html", context)
+
+
+
+
+class NewCommentView(LoginRequiredMixin, View):
+    """
+    Display the new comment page.
+    """
+    login_url = "login"
+    def get(self, request, *args, **kwargs):
+        """
+        Render the new comment page.
+        Args:
+            request (HttpRequest): The incoming HTTP request.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        Returns:
+            HttpResponse: The rendered new comment page.
+        """
+        return render(request, "newcomments.html")
+
     
 
 
+class ForgotPasswordView(View):
+    """
+    Handle password reset requests.
 
+    Displays the forgot password form and sends an OTP to the
+    registered email address if a matching user exists.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Display the forgot password form.
+        Returns:
+            HttpResponse: The rendered forgot password page.
+        """
+        form = ForgotPasswordForm()
+        return render(request,"password/forgot_password.html",{"form": form})
 
-
-def forgot_password(request):
-    if request.method == "POST":
+    def post(self, request, *args, **kwargs):
+        """
+        Process the forgot password form.
+        Generates and emails an OTP for password reset if the
+        provided email belongs to a registered user.
+        Returns:
+            HttpResponse: Redirects to OTP verification on success,
+            otherwise re-renders the form.
+        """
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data["email"]
-            # print("Entered Email:", email)
-            # print("User:", user)
             user = User.objects.filter(email=email).first()
             if user:
-                request.session["reset_user"] = user.id
-                otp = str(random.randint(100000,999999))
+                otp = str(random.randint(100000, 999999))
                 PasswordResetOTP.objects.filter(user=user).delete()
-                PasswordResetOTP.objects.create(
-                    user=user,
-                    otp=otp
-                )
-                # print("Checking email:", settings.EMAIL_HOST_USER)
-                # print("Checking password length:", len(settings.EMAIL_HOST_PASSWORD) if settings.EMAIL_HOST_PASSWORD else "None")
-                
-                user_email = request.POST.get('email') 
+                PasswordResetOTP.objects.create(user=user,otp=otp)
                 send_mail(
-                'OTP Verification',                 
-                f'Your OTP code is: {otp}',         
-                settings.DEFAULT_FROM_EMAIL,          
-                [user.email],                
-                fail_silently=False,
-            )
-
+                    "OTP Verification",
+                    f"Your OTP code is: {otp}",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
                 request.session["reset_user"] = user.id
                 return redirect("verify_otp")
-    else:
-        form = ForgotPasswordForm()
-    return render(request,"password/forgot_password.html",{"form":form})
+        return render(request,"password/forgot_password.html",{"form": form})
 
 
 
 
+class VerifyOTPView(View):
+    """
+    Verify the OTP submitted by the user.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Display the OTP verification form.
+        Returns:
+            HttpResponse: The rendered OTP verification page.
+        """
+        if not request.session.get("reset_user"):
+            return redirect("forgot_password")
+        form = OTPForm()
+        return render(request,"password/verify_otp.html",{"form": form})
 
-def verify_otp(request):
-    user_id = request.session.get("reset_user")
-    if not user_id:
-        return redirect("password/forgot_password")
-    if request.method=="POST":
+    def post(self, request, *args, **kwargs):
+        """
+        Validate the submitted OTP.
+        Returns:
+            HttpResponse: Redirects to the password reset page if
+            the OTP is valid; otherwise, re-renders the form with
+            validation errors.
+        """
+        user_id = request.session.get("reset_user")
+        if not user_id:
+            return redirect("forgot_password")
         form = OTPForm(request.POST)
         if form.is_valid():
             otp = form.cleaned_data["otp"]
-            otp_obj = PasswordResetOTP.objects.filter(
-                user_id=user_id,
-                otp=otp
-            ).first()
-
+            otp_obj = PasswordResetOTP.objects.filter(user_id=user_id,otp=otp).first()
             if otp_obj:
                 return redirect("reset_password")
-
-            else:
-                form.add_error("otp", "OTP you entered is incorrect or expired.")
-    else:
-        form=OTPForm()
-    return render(request,"password/verify_otp.html",{"form":form})
+            form.add_error("otp","OTP you entered is incorrect or expired.")
+        return render(request,"password/verify_otp.html",{"form": form})
 
 
 
 
- 
+class ResetPasswordView(View):
+    """
+    Reset the user's password after successful OTP verification.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Display the password reset form.
+        Returns:
+            HttpResponse: The rendered password reset page.
+        """
+        if not request.session.get("reset_user"):
+            return redirect("forgot_password")
+        form = ResetPasswordForm()
+        return render(request,"password/reset_password.html",{"form": form})
 
-
-
-
-
-def reset_password(request):
-    user_id = request.session.get("reset_user")
-    if not user_id:
-        return redirect("forgot_password")
-    user = User.objects.get(id=user_id)
-    if request.method=="POST":
+    def post(self, request, *args, **kwargs):
+        """
+        Update the user's password.
+        Returns:
+            HttpResponse: Redirects to the home page after
+            successfully resetting the password.
+        """
+        user_id = request.session.get("reset_user")
+        if not user_id:
+            return redirect("forgot_password")
+        user = User.objects.get(id=user_id)
         form = ResetPasswordForm(request.POST)
         if form.is_valid():
-            user.set_password(
-                form.cleaned_data["password1"]
-            )
+            user.set_password(form.cleaned_data["password1"])
             user.save()
             PasswordResetOTP.objects.filter(user=user).delete()
             del request.session["reset_user"]
             return redirect("home")
-    else:
-        form=ResetPasswordForm()
-    return render(request,"password/reset_password.html",{"form":form})
+        return render(request,"password/reset_password.html",{"form": form})

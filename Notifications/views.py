@@ -1,61 +1,25 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import Notification
+from django.views.generic import TemplateView, View
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
+from .models import Notification
 
 
-@login_required
-def notifications(request):
-    """Display the user's notification history and mark them as read.
-
-    Queries all notifications where the current authenticated user is the
-    receiver, orders them from newest to oldest, and marks all retrieved
-    notifications as read in a single batch operation.
-
-    Args:
-        request (HttpRequest): The incoming HTTP request.
-
-    Returns:
-        HttpResponse: The rendered 'notifications.html' template populated 
-            with the user's notifications.
-    """
-    notifications = list(
-        Notification.objects.filter(receiver=request.user).order_by("-created_at")
-    )
-    
-    Notification.objects.filter(receiver=request.user, is_read=False).update(is_read=True)
-
-    return render(
-        request,
-        "notifications.html",
-        {
-            "notifications": notifications
-        }
-    )
-
-    
+class NotificationsView(LoginRequiredMixin, TemplateView):
+    """Display the user's notification history and mark them as read."""
+    template_name = "notifications.html"
+    def get_context_data(self, **kwargs):
+        """Retrieve notifications and mark unread ones as read."""
+        context = super().get_context_data(**kwargs)
+        notifications = list(
+            Notification.objects.filter(receiver=self.request.user).order_by("-created_at")
+        )
+        Notification.objects.filter(receiver=self.request.user,is_read=False).update(is_read=True)
+        context["notifications"] = notifications
+        return context
 
 
-@login_required
-def notification_count(request):
-    """Get the total number of unread notifications for the current user.
-
-    Queries the database using the user's related notification manager to
-    count all incoming notifications that have not been read yet. 
-
-    Args:
-        request (HttpRequest): The incoming HTTP request.
-
-    Returns:
-        JsonResponse: A JSON object containing the 'count' integer of 
-            unread notifications.
-    """
-    count = request.user.received_notifications.filter(
-        is_read=False
-    ).count()
-
-    return JsonResponse({
-        "count": count
-    })
-
-
+class NotificationCountView(LoginRequiredMixin, View):
+    """Return the number of unread notifications for the current user."""
+    def get(self, request, *args, **kwargs):
+        count = request.user.received_notifications.filter(is_read=False).count()
+        return JsonResponse({"count": count})
