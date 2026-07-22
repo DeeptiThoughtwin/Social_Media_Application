@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import Profile
 import re
+from django import forms
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 
 
@@ -339,8 +342,6 @@ class OTPForm(forms.Form):
 
 
 
-
-
 class ResetPasswordForm(forms.Form):
     password1 = forms.CharField(widget=forms.PasswordInput)
     password2 = forms.CharField(widget=forms.PasswordInput)
@@ -352,3 +353,68 @@ class ResetPasswordForm(forms.Form):
             raise forms.ValidationError("Passwords do not match.")
 
         return cleaned
+
+
+
+class ChangePasswordForm(forms.Form):
+    old_password = forms.CharField(
+        label="Old Password",
+        widget=forms.PasswordInput(attrs={
+            "class": "w-full border border-pink-500 rounded-lg p-2 focus:border-pink-500",
+            "placeholder": "Enter Old Password"
+        })
+    )
+
+    new_password = forms.CharField(
+        label="New Password",
+        widget=forms.PasswordInput(attrs={
+            "class": "w-full border border-pink-500 rounded-lg p-2 focus:border-pink-500",
+            "placeholder": "Enter New Password"
+        })
+    )
+
+    confirm_password = forms.CharField(
+        label="Confirm Password",
+        widget=forms.PasswordInput(attrs={
+            "class": "w-full border border-pink-500 rounded-lg p-2 focus:border-pink-700",
+            "placeholder": "Confirm New Password"
+        })
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_old_password(self):
+        old_password = self.cleaned_data.get("old_password")
+        if not self.user.check_password(old_password):
+            raise forms.ValidationError("Old password is incorrect.")
+        return old_password
+
+    def clean(self):
+        cleaned_data = super().clean()
+        old_password = cleaned_data.get("old_password")
+        new_password = cleaned_data.get("new_password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if new_password and confirm_password:
+            if new_password != confirm_password:
+                self.add_error(
+                    "confirm_password",
+                    "New password and confirm password do not match."
+                )
+
+        if old_password and new_password:
+            if old_password == new_password:
+                self.add_error(
+                    "new_password",
+                    "New password cannot be the same as the old password."
+                )
+
+        if new_password:
+            try:
+                validate_password(new_password, self.user)
+            except ValidationError as e:
+                self.add_error("new_password", e)
+
+        return cleaned_data

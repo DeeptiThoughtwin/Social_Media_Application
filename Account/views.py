@@ -4,20 +4,18 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import login_required
-from .models import Profile,Follow
+from .models import Profile,Follow,PasswordResetOTP
 from posts.models import Post,Like
 from Stories.models import Story
 from Stories.forms import StoryForm
-from .forms import RegistrationForm,LoginForm,UserUpdateForm,ProfileUpdateForm,ResetPasswordForm
+from .forms import RegistrationForm,LoginForm,UserUpdateForm,ProfileUpdateForm,ResetPasswordForm,ForgotPasswordForm,ChangePasswordForm,OTPForm
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 import random
 from django.core.mail import send_mail
-from .models import PasswordResetOTP
-from .forms import ForgotPasswordForm
-from .forms import OTPForm
-from .models import PasswordResetOTP
 from django.conf import settings
+from django.contrib.auth import update_session_auth_hash
+from .forms import ChangePasswordForm
 
 
 
@@ -120,12 +118,8 @@ def login(request):
             authenticated or loggedin successfully. Otherwise, returns a rendered 
             HTML response containing the 'login.html'.
     """
-
-    # 1. First, check if the user is already logged in
     if request.user.is_authenticated:
         return redirect("home")
-        
-    # 2. If they are NOT logged in, handle the form processing (Notice the shift to the left)
     if request.method == "POST":
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
@@ -420,3 +414,27 @@ def reset_password(request):
     else:
         form=ResetPasswordForm()
     return render(request,"password/reset_password.html",{"form":form})
+
+
+
+
+
+
+@login_required
+def change_password(request):
+    if request.method == "POST":
+        form = ChangePasswordForm(request.user, request.POST)
+
+        if form.is_valid():
+            request.user.set_password(form.cleaned_data["new_password"])
+            request.user.save()
+
+            update_session_auth_hash(request, request.user)
+
+            messages.success(request, "Password updated successfully.")
+            return redirect("home")
+
+    else:
+        form = ChangePasswordForm(request.user)
+
+    return render(request, "password/change_password.html", {"form": form})
