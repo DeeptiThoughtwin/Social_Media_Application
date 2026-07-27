@@ -48,6 +48,7 @@
               </p>
             </div>
           </div>
+          <div class="flex items-center gap-2">
           {% if request.user != post.user %}
             <button
                 class="follow-btn-{{ post.user.id }} {% if post.is_following %}bg-gray-200{% else %}bg-blue-500 text-white{% endif %} px-4 py-1 rounded-md text-sm font-medium"
@@ -55,7 +56,83 @@
                 {% if post.is_following %} Following {% else %} Follow {% endif %}
             </button>
           {% endif %}
+          <div class="relative inline-block">
+            <button
+                class="menu-btn p-2 rounded-full hover:bg-gray-100"
+                data-post="{{ post.id }}">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="w-6 h-6 text-gray-700"
+                    fill="currentColor"
+                    viewBox="0 0 24 24">
+                    <circle cx="12" cy="5" r="1.7"/>
+                    <circle cx="12" cy="12" r="1.7"/>
+                    <circle cx="12" cy="19" r="1.7"/>
+                </svg>
+
+            </button>
         </div>
+
+            <div id="menu-{{ post.id }}"
+                class="menu hidden absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border z-50">
+
+                <button
+                type="button"
+                onclick="openModal({{ post.id }}); closeMenu({{ post.id }})"
+                class="w-full text-left px-4 py-3 hover:bg-gray-100">
+            Edit Caption
+            </button>
+
+                <a href="{% url 'delete_post' post.id %}"
+                onclick="return confirm('Delete this post?')"
+                class="block px-4 py-3 text-red-600 hover:bg-red-50">
+                    Delete
+                </a>
+
+            </div>
+
+          </div>
+        </div>
+        <div id="editModal-{{ post.id }}"
+        class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+
+        <div class="bg-white rounded-xl p-6 w-[500px]">
+
+            <h2 class="text-xl font-semibold mb-4">
+                Edit Caption
+            </h2>
+
+            <form method="POST" action="{% url 'edit_post' post.id %}">
+                {% csrf_token %}
+
+                <textarea
+                    name="caption"
+                    rows="5"
+                    class="w-full border rounded-lg p-3">{{ post.caption }}</textarea>
+
+                <div class="flex justify-end gap-3 mt-4">
+
+                    <button
+                        type="button"
+                        onclick="closeModal({{ post.id }})"
+                        class="px-4 py-2 bg-gray-300 rounded-lg">
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="px-4 py-2 bg-pink-500 text-white rounded-lg">
+                        Save
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
         <div class="w-full bg-gray-50">
           {% for media in post.media.all %}
             {% if media.media_type == "image" %}
@@ -164,6 +241,19 @@
 </div>
 <script>
 
+  
+function openModal(postId){
+    const modal = document.getElementById(`editModal-${postId}`);
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+}
+
+function closeModal(postId){
+    const modal = document.getElementById(`editModal-${postId}`);
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+}
+
   document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
     const closeBtn = document.getElementById('close-btn');
@@ -201,10 +291,9 @@ function toggleFollow(userId, url) {
     })
     .then(response => response.json())
     .then(data => {
-        // Correctly select all buttons matching the user ID
+       
         const buttons = document.querySelectorAll(`.follow-btn-${userId}`);
 
-        // Loop through every button found and update its state
         buttons.forEach(button => {
             if (data.following) {
                 button.innerText = "Following";
@@ -334,47 +423,6 @@ function toggleChildren(id){
 
 
 
-//function toggleFollow(userId, url) {
-
-    //fetch(url, {
-      //  method: "POST",
-        //headers: {
-          //  "X-CSRFToken": getCookie("csrftoken"),
-            //"X-Requested-With": "XMLHttpRequest",
-        //}
-    //})
-    //.then(response => response.json())
-    //.then(data => {
-
-      //  const buttons = document.querySelectorAll(`.follow-btn-${userId}`);
-
-        //buttons.forEach(button => {
-
-          //  if (data.following) {
-
-//                button.innerText = "Following";
-
-  //              button.classList.remove("bg-blue-500", "text-white");
-//                button.classList.add("bg-gray-200");
-
-  //          } else {
-
-    //            button.innerText = "Follow";
-
-      //          button.classList.remove("bg-gray-200");
-        //        button.classList.add("bg-blue-500", "text-white");
-
-          //  }
-
-       // });
-
-    //})
-    //.catch(error => console.log(error));
-
-//}
-
-
-
 function getCookie(name) {
     let cookieValue = null;
 
@@ -417,5 +465,36 @@ function toggleLike(postId, url) {
     .catch(error => console.log(error));
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+
+    document.querySelectorAll(".menu-btn").forEach(button => {
+
+        button.addEventListener("click", function (e) {
+            e.stopPropagation();
+
+            const postId = this.dataset.post;
+            const menu = document.getElementById(`menu-${postId}`);
+
+            
+            document.querySelectorAll(".menu").forEach(m => {
+                if (m !== menu) {
+                    m.classList.add("hidden");
+                }
+            });
+
+            // Toggle current menu
+            menu.classList.toggle("hidden");
+        });
+
+    });
+
+    
+    document.addEventListener("click", function () {
+        document.querySelectorAll(".menu").forEach(menu => {
+            menu.classList.add("hidden");
+        });
+    });
+
+});
 </script>
 {% endblock %}

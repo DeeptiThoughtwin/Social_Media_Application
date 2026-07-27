@@ -8,7 +8,7 @@ from .models import Follow, Profile
 from posts.models import Like, Post
 from Stories.forms import StoryForm
 from Stories.models import Story
-from .forms import ProfileUpdateForm, UserUpdateForm
+from .forms import ProfileUpdateForm, UserUpdateForm,LoginForm,RegistrationForm
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404

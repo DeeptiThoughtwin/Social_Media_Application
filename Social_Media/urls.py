@@ -23,13 +23,15 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path('app/',include('social_login.urls')), 
+    path('accounts/', include('allauth.urls')),
 
     path('', include('Account.urls')),
     path('posts/', include('posts.urls')),
     path('notifications/',include('Notifications.urls')),
     path('stories/',include('Stories.urls')),
     path('comments/',include('comments.urls')),
-    # path('accounts/', include('allauth.urls')),
+    path('api/', include(('Account.api.urls', 'Account'), namespace='account_api')),
+
  
 
     
@@ -40,8 +42,6 @@ if settings.DEBUG:
         document_root=settings.MEDIA_ROOT
     )
 
-    # urls.py
-from django.contrib import admin
-from django.urls import path, include
+
 
 

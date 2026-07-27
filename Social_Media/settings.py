@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-from pathlib import Path
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -35,32 +34,38 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
 
-
 INSTALLED_APPS = [
-    
-    "Account.apps.AccountConfig",
-    'posts',
-    'Notifications',
-    'Stories',
-    'comments',
-
-    
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
-    "allauth.socialaccount.providers.github",
-    'allauth.socialaccount.providers.openid_connect',
-
-    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "django.contrib.sites",
+    'django.contrib.sites',
+
+
+    'rest_framework',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.openid_connect',
+
+    
+    'Account.apps.AccountConfig',
+    'posts',
+    'Notifications',
+    'Stories',
+    'comments',
 ]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
 
 
 SITE_ID = 1
@@ -91,8 +96,8 @@ SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APPS': [
             {
-                'client_id': 'CLIENT_ID',
-                'secret': 'CLIENT_SECRET',
+               'client_id': os.environ.get('CLIENT_ID'),
+                'secret': os.environ.get('CLIENT_SECRET'),
                 'key': ''
             },
         ]
@@ -100,12 +105,31 @@ SOCIALACCOUNT_PROVIDERS = {
     'github': {
         'APPS': [
             {
-                'client_id': 'GITHUB_CLIENT_ID',
-                'secret': 'GITHUB_CLIENT_SECRET',
+                'client_id': os.environ.get('GITHUB_CLIENT_ID'),
+                'secret': os.environ.get('GITHUB_CLIENT_SECRET'),
                 'key': ''
             },
         ]
-    }
+    },
+
+    'openid_connect': {
+    'APPS': [
+        {
+            'provider_id': 'linkedin',  
+            'name': 'LinkedIn',
+            'client_id': os.environ.get('LINKEDIN_CLIENT_ID'),
+            'secret': os.environ.get('LINKEDIN_CLIENT_SECRET'),
+            'settings': {
+                'server_url': 'https://www.linkedin.com/oauth/.well-known/openid-configuration',
+            }
+        }
+    ],
+    'SCOPE': [
+            'openid',
+            'profile',
+            'email',
+        ],
+}
 }
 
 
