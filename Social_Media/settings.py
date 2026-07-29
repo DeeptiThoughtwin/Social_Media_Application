@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env", override=True)
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
 
 
     'rest_framework',
+    'drf_spectacular',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -58,14 +60,23 @@ INSTALLED_APPS = [
     'Notifications',
     'Stories',
     'comments',
+    'rest_framework_simplejwt.token_blacklist',
+    
 ]
 
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-    ]
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
 }
+
 
 
 SITE_ID = 1
@@ -144,6 +155,28 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 
 
 
+
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+
+    "ROTATE_REFRESH_TOKENS": True,          
+    "BLACKLIST_AFTER_ROTATION": True,       
+    "UPDATE_LAST_LOGIN": False,            
+
+    "ALGORITHM": "HS256",                   
+    "SIGNING_KEY": SECRET_KEY,             
+
+    "AUTH_HEADER_TYPES": ("Bearer",),      
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",                  
+    "USER_ID_CLAIM": "user_id",             
+   
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+}
 
 
 
@@ -289,4 +322,25 @@ MEDIA_ROOT = BASE_DIR / "media"
 # print(STATIC_URL)
 
 
-
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Your Project API',
+    'DESCRIPTION': 'Detailed description of your endpoints',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_PATCH': True,
+    'SECURITY': [
+        {
+            'BearerAuth': [],
+        }
+    ],
+    'APPEND_COMPONENTS': {
+        'securitySchemes': {
+            'BearerAuth': {
+                'type': 'apiKey',
+                'in': 'header',
+                'name': 'Authorization',
+                'description': 'Enter your JWT token in this format: Bearer <your_token_here>',
+            }
+        }
+    },
+}

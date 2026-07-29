@@ -3,7 +3,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from posts.models import Post
 from comments.forms import CommentForm
-from .models import Comment
+from comments.models import Comment
 
 
 class CommentView(View):

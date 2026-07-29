@@ -1,14 +1,13 @@
 from django.shortcuts import redirect, render
 from django.views import View
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as auth_login
-from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import logout as auth_logout,authenticate, login as auth_login
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Follow, Profile
+from Account.models import Follow, Profile
 from posts.models import Like, Post
 from Stories.forms import StoryForm
 from Stories.models import Story
-from .forms import ProfileUpdateForm, UserUpdateForm,LoginForm,RegistrationForm
+from Account.forms import ProfileUpdateForm, UserUpdateForm,LoginForm,RegistrationForm
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404

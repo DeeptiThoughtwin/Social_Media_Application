@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Story
-from .forms import StoryForm
-
+from Stories.models import Story
+from Stories.forms import StoryForm
 
 class AddStoryView(LoginRequiredMixin, View):
     def get(self, request):
