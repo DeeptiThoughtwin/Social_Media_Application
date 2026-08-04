@@ -279,7 +279,7 @@
                 </button>
                 {% endif %}
 
-                
+    {% if request.user == post.user %}            
     <div class="relative inline-block">
         <button
             class="menu-btn p-2 rounded-full hover:bg-gray-100"
@@ -306,16 +306,23 @@
          Edit Caption
         </button>
 
-            <a href="{% url 'delete_post' post.id %}"
-            onclick="return confirm('Delete this post?')"
-            class="block px-4 py-3 text-red-600 hover:bg-red-50">
-                 Delete
-            </a>
+            <form id="delete-form-{{ post.id }}"
+                method="POST"
+                action="{% url 'delete_post' post.id %}">
+                {% csrf_token %}
+
+                <button
+                    type="button"
+                    onclick="confirmDelete('delete-form-{{ post.id }}')"
+                    class="block w-full text-left px-4 py-3 text-red-600 hover:bg-red-50">
+                    Delete
+                </button>
+            </form>
 
         </div>
 
     </div>
-
+    {% endif %}
 </div>
 
 
@@ -363,7 +370,7 @@
 
     
     
-    <a href="{% url 'post_detail' post.id %}" class="block">
+    <!-- <a href="{% url 'post_detail' post.id %}" class="block">
         {% for media in post.media.all %}
             {% if media.media_type == "image" %}
             <img class="w-full max-h-[550px] object-cover" src="{{ media.file.url }}"/>
@@ -373,8 +380,42 @@
             </video>
             {% endif %}
         {% endfor %}
-    </a>
+    </a> -->
+    <!-- <a href="{% url 'post_detail' post.id %}" class="block"> -->
 
+    <div class="swiper postSwiper{{ post.id }}">
+        <div class="swiper-wrapper">
+
+            {% for media in post.media.all %}
+                <div class="swiper-slide">
+                    {% if media.media_type == "image" %}
+                        <img
+                            src="{{ media.file.url }}"
+                            class="w-full max-h-[550px] object-cover"
+                        >
+                    {% else %}
+                        <video
+                            class="w-full max-h-[550px] object-cover"
+                            controls
+                        >
+                            <source src="{{ media.file.url }}">
+                        </video>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+        </div>
+
+        <div class="swiper-pagination"></div>
+
+        {% if post.media.count > 1 %}
+           
+            <div class="swiper-button-prev !text-white  w-10 h-10"></div>
+            <div class="swiper-button-next !text-white w-10 h-10"></div>
+        {% endif %}
+    </div>
+
+<!-- </a> -->
     
     
     <div class="px-3 py-2 flex items-center justify-between text-2xl">
@@ -743,7 +784,41 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+document.addEventListener("DOMContentLoaded", function () {
+    {% for post in posts %}
+    new Swiper(".postSwiper{{ post.id }}", {
+        loop: false,
+        pagination: {
+            el: ".postSwiper{{ post.id }} .swiper-pagination",
+            clickable: true,
+        },
+        navigation: {
+            nextEl: ".postSwiper{{ post.id }} .swiper-button-next",
+            prevEl: ".postSwiper{{ post.id }} .swiper-button-prev",
+        },
+    });
+    {% endfor %}
+});
+
+function confirmDelete(formId) {
+    Swal.fire({
+        title: "Delete Post?",
+        text: "This action cannot be undone.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#dc2626"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById(formId).submit();
+        }
+    });
+}
+
 </script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {% endblock content %}
 
 

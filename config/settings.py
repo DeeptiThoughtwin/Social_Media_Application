@@ -43,10 +43,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    
 
 
     'rest_framework',
     'drf_spectacular',
+    'corsheaders',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -75,6 +77,15 @@ REST_FRAMEWORK = {
     ),
      'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
+     "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+    ],
+
+     "DEFAULT_THROTTLE_RATES": {
+        "anon": "5/minute",
+        "login": "5/minute",   
+    },
+
 }
 
 
@@ -89,6 +100,7 @@ AUTHENTICATION_BACKENDS = [
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -153,8 +165,11 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 
+CORS_ALLOW_CREDENTIALS = True
 
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+]
 
 
 
@@ -198,8 +213,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
-
-
 
 
 
@@ -339,8 +352,10 @@ SPECTACULAR_SETTINGS = {
                 'type': 'apiKey',
                 'in': 'header',
                 'name': 'Authorization',
-                'description': 'Enter your JWT token in this format: Bearer <your_token_here>',
+                'description': '',
             }
         }
     },
 }
+
+

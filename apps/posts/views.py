@@ -8,6 +8,9 @@ from apps.posts.models import Post, PostMedia, Like
 from apps.posts.forms import PostForm
 
 
+from django.contrib import messages
+from django.db import transaction
+
 class CreatePostView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
@@ -15,22 +18,51 @@ class CreatePostView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("profile")
 
     def form_valid(self, form):
-        post = form.save(commit=False)
-        post.user = self.request.user
-        post.save()
-
         files = self.request.FILES.getlist("files")
-        for f in files:
-            media_type = (
-                "video" if f.content_type.startswith("video") else "image"
-            )
-            PostMedia.objects.create(
-                post=post,
-                file=f,
-                media_type=media_type,
-            )
 
-        return redirect(self.success_url)
+        if not files:
+            form.add_error(None, "Please upload at least one image or video.")
+            return self.form_invalid(form)
+
+        ALLOWED_IMAGE_TYPES = [
+            "image/jpeg",
+            "image/png",
+        ]
+
+        ALLOWED_VIDEO_TYPES = [
+            "video/mp4",
+            "video/webm",
+        ]
+
+        for f in files:
+            if (
+                f.content_type not in ALLOWED_IMAGE_TYPES
+                and f.content_type not in ALLOWED_VIDEO_TYPES
+            ):
+                form.add_error(
+                    None,
+                    f"{f.name} is not a supported file type."
+                )
+                return self.form_invalid(form)
+
+        with transaction.atomic():
+            post = form.save(commit=False)
+            post.user = self.request.user
+            post.save()
+
+            for f in files:
+                media_type = (
+                    "video"
+                    if f.content_type in ALLOWED_VIDEO_TYPES
+                    else "image"
+                )
+
+                PostMedia.objects.create(
+                    post=post,
+                    file=f,
+                    media_type=media_type,
+                )
+        return super().form_valid(form)
 
 
 class DeletePostView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -39,6 +71,11 @@ class DeletePostView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         post = self.get_object()
+
+        # print("Logged in:", self.request.user)
+        # print("Post owner:", post.user)
+        # print("Equal:", self.request.user == post.user)
+
         return self.request.user == post.user
 
 

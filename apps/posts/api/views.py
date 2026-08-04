@@ -6,13 +6,14 @@ from apps.posts.models import Post, Like
 from apps.posts.api.serializers import PostSerializer,LikeSerializer
 from apps.posts.api.permissions import IsOwner
 from rest_framework import viewsets
+from apps.posts.api.mypagination import myPagePagination
 
 
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by("-created_at")
     serializer_class = PostSerializer
-    # pagination_class = myPagePagination
+    pagination_class = myPagePagination
 
     def get_permissions(self):
 

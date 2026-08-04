@@ -14,6 +14,10 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.core.mail import send_mail
 import random
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
+from apps.Account.tasks import send_welcome_email
+from django.core.cache import cache
 
 class HomeView(LoginRequiredMixin, View):
     """
@@ -90,7 +94,17 @@ class SignupView(View):
             form.save()
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password1"]
-            user = authenticate(request,username=username,password=password)
+            
+            send_welcome_email.delay(
+            user.username,
+            user.email,
+            )
+
+            user = authenticate(
+                request,
+                username=username,
+                password=password,
+            )
             if user is not None:
                 auth_login(request, user)
             messages.success(request,f"Welcome {username}! Your account has been created.")
@@ -98,8 +112,18 @@ class SignupView(View):
         return render(request, "signup.html", {"form": form})
 
 
+   
 
 
+
+@method_decorator(
+    ratelimit(key="ip", rate="5/m", method="POST", block=True),
+    name="dispatch",
+)
+@method_decorator(
+    ratelimit(key="user", rate="10/m", method="POST", block=True),
+    name="dispatch",
+)
 class LoginView(View):
     """
     Authenticate and log in a user.

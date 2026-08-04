@@ -25,8 +25,8 @@ from django.conf import settings
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken  
-# from Account.api.mypagination import myPagePagination
-
+from apps.Account.api.throttles import LoginThrottle
+from django.core.cache import cache
 
 
 class HomeAPIView(generics.ListAPIView):
@@ -37,19 +37,32 @@ class HomeAPIView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         profile, _ = Profile.objects.get_or_create(user=request.user)
-        posts = self.get_queryset()
-        post_serializer = self.get_serializer(posts,many=True,context={"request": request})
+
+        if posts_data is None:
+            print("Cache Miss")
+            posts = self.get_queryset()
+            posts_data = self.get_serializer(
+                posts,
+                many=True,
+                context={"request": request},
+            ).data
+            cache.set("home_posts", posts_data, timeout=300)
+        else:
+            print("Cache Hit")
+
         stories = Story.objects.all().order_by("-created_at")
         story_serializer = StorySerializer(stories, many=True)
         profile_serializer = ProfileSerializer(profile)
         return Response({
             "profile": profile_serializer.data,
-            "posts": post_serializer.data,
+            "posts": posts_data,
             "stories": story_serializer.data,
             "posts_count": Post.objects.filter(user=request.user).count(),
             "followers_count": Follow.objects.filter(following=request.user).count(),
             "following_count": Follow.objects.filter(follower=request.user).count(),
         })
+
+
 
 
 
@@ -91,6 +104,7 @@ class LoginAPIView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
+    throttle_classes = [ LoginThrottle]
 
     def post(self, request, *args, **kwargs):
         username = request.data.get("username")
