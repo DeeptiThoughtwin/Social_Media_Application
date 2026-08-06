@@ -114,5 +114,6 @@ class EditPostView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     success_url = reverse_lazy("profile")
 
     def test_func(self):
-        post = self.get_object()
-        return self.request.user == post.user
+    print(self.kwargs)
+    post = self.get_object()
+    return self.request.user == post.user
