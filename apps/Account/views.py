@@ -1,7 +1,12 @@
-from django.shortcuts import redirect, render
-from django.views import View
+from django.contrib.auth import (
+    logout as auth_logout,
+    authenticate,
+    login as auth_login,
+)
 from django.contrib import messages
-from django.contrib.auth import logout as auth_logout,authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from apps.Account.models import Follow, Profile
 from apps.posts.models import Like, Post
@@ -18,6 +23,10 @@ from django.utils.decorators import method_decorator
 from django_ratelimit.decorators import ratelimit
 from apps.Account.tasks import send_welcome_email
 from django.core.cache import cache
+import logging
+logger = logging.getLogger(__name__)
+
+
 
 class HomeView(LoginRequiredMixin, View):
     """
@@ -41,6 +50,7 @@ class HomeView(LoginRequiredMixin, View):
             HttpResponse: The rendered home page containing the user's
             profile, posts, stories, and account statistics.
         """
+        logger.info("Home page requested: user_id=%s", request.user.id)
         profile, _ = Profile.objects.get_or_create(user=request.user)
         posts = Post.objects.all().order_by("-created_at")
         stories = Story.objects.all().order_by("-created_at")
@@ -55,6 +65,7 @@ class HomeView(LoginRequiredMixin, View):
             "following_count": Follow.objects.filter(follower=request.user).count(),
             "stories": stories,
         }
+        logger.info("Home page rendered: user_id=%s posts=%s stories=%s", request.user.id, posts.count(), stories.count())
         return render(request,"home.html",context)
 
 
@@ -78,6 +89,7 @@ class SignupView(View):
             HttpResponse: The rendered signup page.
         """
         form = RegistrationForm()
+        logger.warning("Signup validation failed")
         return render(request, "signup.html", {"form": form})
 
     def post(self, request, *args, **kwargs):
@@ -91,13 +103,15 @@ class SignupView(View):
         """
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user=form.save()
+            logger.info("User registered successfully: user_id=%s", user.id)
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password1"]
             
+            logger.info("Queueing welcome email: user_id=%s", user.id)
             send_welcome_email.delay(
-            user.username,
-            user.email,
+                user.username,
+                user.email,
             )
 
             user = authenticate(
@@ -137,6 +151,7 @@ class LoginView(View):
         if request.user.is_authenticated:
             return redirect("home")
         form = LoginForm()
+        logger.warning("Login failed: invalid credentials or form data")
         return render(request, "login.html", {"form": form})
 
     def post(self, request, *args, **kwargs):
@@ -157,6 +172,7 @@ class LoginView(View):
                 )
             if user is not None:
                 auth_login(request, user)
+                logger.info("User login successful: user_id=%s", user.id)
                 messages.success(request,f"Welcome back {user.username}")
                 return redirect("home")
         return render(request, "login.html", {"form": form})
@@ -182,6 +198,7 @@ class LogoutView(View):
             HttpResponseRedirect: Redirects to the login page after
             successfully logging out the user.
         """
+        logger.info("User logout: user_id=%s", request.user.id)
         auth_logout(request)
         messages.success(request, "You have been logged out.")
         return redirect("login")
@@ -254,6 +271,7 @@ class EditProfileView(LoginRequiredMixin, View):
             "profile_form": ProfileUpdateForm(instance=profile),
             "profile": profile,
         }
+        logger.warning("Profile update validation failed: user_id=%s", request.user.id)
         return render(request, "profile/edit_profile.html", context)
 
     def post(self, request, *args, **kwargs):
@@ -275,6 +293,7 @@ class EditProfileView(LoginRequiredMixin, View):
         user_form = UserUpdateForm(request.POST,instance=request.user)
         profile_form = ProfileUpdateForm(request.POST,request.FILES,instance=profile)
         if user_form.is_valid() and profile_form.is_valid():
+            logger.info("Profile update successful: user_id=%s", request.user.id)
             user_form.save()
             profile_form.save()
             messages.success(request,"Profile updated successfully.")
@@ -310,6 +329,7 @@ class DeleteProfileView(LoginRequiredMixin, View):
             successfully deleting the user account.
         """
         user = request.user
+        logger.info("Account deletion requested: user_id=%s", user.id)
         auth_logout(request)
         user.delete()
         messages.success(request,"Your account has been permanently deleted.")
@@ -340,13 +360,16 @@ class FollowUserView(LoginRequiredMixin, View):
         """
         user_to_follow = get_object_or_404(User, id=user_id)
         if request.user == user_to_follow:
+            logger.warning("User attempted to follow themselves: user_id=%s", request.user.id)
             return JsonResponse({"error": "You cannot follow yourself."},status=400)
         follow, created = Follow.objects.get_or_create(follower=request.user,following=user_to_follow)
         if created:
             following = True
+            logger.info("Follow created: follower_id=%s following_id=%s", request.user.id, user_to_follow.id)
         else:
             follow.delete()
             following = False
+            logger.info("Follow removed: follower_id=%s following_id=%s", request.user.id, user_to_follow.id)
         followers_count = Follow.objects.filter(following=user_to_follow).count()
         return JsonResponse(
             {
@@ -438,6 +461,7 @@ class ForgotPasswordView(View):
             email = form.cleaned_data["email"]
             user = User.objects.filter(email=email).first()
             if user:
+                logger.info("Password reset requested: user_id=%s", user.id)
                 otp = str(random.randint(100000, 999999))
                 PasswordResetOTP.objects.filter(user=user).delete()
                 PasswordResetOTP.objects.create(user=user,otp=otp)
@@ -486,7 +510,9 @@ class VerifyOTPView(View):
             otp = form.cleaned_data["otp"]
             otp_obj = PasswordResetOTP.objects.filter(user_id=user_id,otp=otp).first()
             if otp_obj:
+                logger.info("OTP verified successfully: user_id=%s", user_id)
                 return redirect("reset_password")
+            logger.warning("OTP verification failed: user_id=%s", user_id)
             form.add_error("otp","OTP you entered is incorrect or expired.")
         return render(request,"password/verify_otp.html",{"form": form})
 
@@ -521,6 +547,7 @@ class ResetPasswordView(View):
         user = User.objects.get(id=user_id)
         form = ResetPasswordForm(request.POST)
         if form.is_valid():
+            logger.info("Password reset successful: user_id=%s", user_id)
             user.set_password(form.cleaned_data["password1"])
             user.save()
             PasswordResetOTP.objects.filter(user=user).delete()

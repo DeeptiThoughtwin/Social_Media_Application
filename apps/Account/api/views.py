@@ -27,39 +27,84 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken  
 from apps.Account.api.throttles import LoginThrottle
 from django.core.cache import cache
-
+from django.contrib.auth import authenticate
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from apps.Account.forms import RegistrationForm
+from apps.Account.tasks import send_welcome_email
+import logging
+logger = logging.getLogger(__name__)
 
 class HomeAPIView(generics.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
+
     def get_queryset(self):
         return Post.objects.all().order_by("-created_at")
 
     def list(self, request, *args, **kwargs):
-        profile, _ = Profile.objects.get_or_create(user=request.user)
+        profile, _ = Profile.objects.get_or_create(
+            user=request.user
+        )
+
+        posts_data = cache.get("home_posts")
 
         if posts_data is None:
-            print("Cache Miss")
+            logger.info(
+                "Home API cache miss: user_id=%s",
+                request.user.id,
+            )
+
             posts = self.get_queryset()
+
             posts_data = self.get_serializer(
                 posts,
                 many=True,
                 context={"request": request},
             ).data
-            cache.set("home_posts", posts_data, timeout=300)
+
+            cache.set(
+                "home_posts",
+                posts_data,
+                timeout=300
+            )
+
+            logger.info(
+                "Home API posts cached: user_id=%s post_count=%s",
+                request.user.id,
+                len(posts_data),
+            )
+
         else:
-            print("Cache Hit")
+            logger.info(
+                "Home API cache hit: user_id=%s post_count=%s",
+                request.user.id,
+                len(posts_data),
+            )
 
         stories = Story.objects.all().order_by("-created_at")
-        story_serializer = StorySerializer(stories, many=True)
+
+        story_serializer = StorySerializer(
+            stories,
+            many=True
+        )
+
         profile_serializer = ProfileSerializer(profile)
+
         return Response({
             "profile": profile_serializer.data,
             "posts": posts_data,
             "stories": story_serializer.data,
-            "posts_count": Post.objects.filter(user=request.user).count(),
-            "followers_count": Follow.objects.filter(following=request.user).count(),
-            "following_count": Follow.objects.filter(follower=request.user).count(),
+            "posts_count": Post.objects.filter(
+                user=request.user
+            ).count(),
+            "followers_count": Follow.objects.filter(
+                following=request.user
+            ).count(),
+            "following_count": Follow.objects.filter(
+                follower=request.user
+            ).count(),
         })
 
 
@@ -68,30 +113,50 @@ class HomeAPIView(generics.ListAPIView):
 
 
 
-class SignupAPIView(generics.CreateAPIView):
-    serializer_class = RegistrationSerializer
-    authentication_classes = [] 
-    permission_classes = []
+class SignupAPIView(APIView):
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+    def post(self, request, *args, **kwargs):
+        form = RegistrationForm(request.data)
 
-        return Response(
-            {
-                "message": "Account created successfully.",
-                "user": {
-                    "id": user.id,
+        if form.is_valid():
+            user = form.save()
+
+            logger.info(
+                "API signup successful: user_id=%s username=%s",
+                user.id,
+                user.username,
+            )
+
+            send_welcome_email.delay(
+                user.username,
+                user.email,
+            )
+
+            logger.info(
+                "Welcome email task queued: user_id=%s",
+                user.id,
+            )
+
+            return Response(
+                {
+                    "message": f"Welcome {user.username}! Your account has been created.",
                     "username": user.username,
                     "email": user.email,
                 },
-            },
-            status=status.HTTP_201_CREATED,
+                status=status.HTTP_201_CREATED,
+            )
+
+        logger.warning(
+            "API signup failed: validation errors=%s",
+            form.errors,
         )
 
-
-
+        return Response(
+            {
+                "errors": form.errors
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 
@@ -104,32 +169,54 @@ class LoginAPIView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
-    throttle_classes = [ LoginThrottle]
+    throttle_classes = [LoginThrottle]
 
     def post(self, request, *args, **kwargs):
         username = request.data.get("username")
         password = request.data.get("password")
 
         if not username or not password:
+            logger.warning(
+                "API login failed: username or password missing"
+            )
+
             return Response(
                 {"error": "Both username and password are required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        user = authenticate(username=username, password=password)
+        user = authenticate(
+            username=username,
+            password=password
+        )
 
         if user is not None:
+
             if not user.is_active:
+                logger.warning(
+                    "API login failed: inactive user_id=%s username=%s",
+                    user.id,
+                    user.username,
+                )
+
                 return Response(
                     {"error": "This account has been deactivated."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+
             refresh = RefreshToken.for_user(user)
+
+            logger.info(
+                "API login successful: user_id=%s username=%s",
+                user.id,
+                user.username,
+            )
+
             return Response(
                 {
                     "message": "Login successful.",
-                    "access": str(refresh.access_token),  
-                    "refresh": str(refresh),  
+                    "access": str(refresh.access_token),
+                    "refresh": str(refresh),
                     "user": {
                         "id": user.id,
                         "username": user.username,
@@ -139,15 +226,15 @@ class LoginAPIView(APIView):
                 status=status.HTTP_200_OK,
             )
 
+        logger.warning(
+            "API login failed: invalid credentials username=%s",
+            username,
+        )
+
         return Response(
             {"error": "Invalid username or password."},
             status=status.HTTP_401_UNAUTHORIZED,
         )
-
-
-
-
-
 
 class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -155,24 +242,42 @@ class LogoutAPIView(APIView):
     def post(self, request):
         try:
             refresh_token = request.data.get("refresh")
+
             if not refresh_token:
+                logger.warning(
+                    "API logout failed: refresh token missing user_id=%s",
+                    request.user.id,
+                )
+
                 return Response(
                     {"error": "Refresh token is required to log out."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
             token = RefreshToken(refresh_token)
             token.blacklist()
+
+            logger.info(
+                "API logout successful: user_id=%s",
+                request.user.id,
+            )
+
             return Response(
                 {"message": "Logged out successfully."},
                 status=status.HTTP_200_OK,
             )
+
         except TokenError:
+            logger.warning(
+                "API logout failed: invalid or expired refresh token "
+                "user_id=%s",
+                request.user.id,
+            )
+
             return Response(
                 {"error": "Invalid or expired token."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-
 
 
 class ProfileAPIView(generics.RetrieveAPIView):
@@ -289,7 +394,8 @@ class CommentAPIView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(
-            user=self.request.user
+            author=self.request.user,
+            post_id=self.kwargs["post_id"],
         )
 
 
@@ -297,6 +403,7 @@ class CommentAPIView(generics.ListCreateAPIView):
 
 class ForgotPasswordAPIView(APIView):
     serializer_class = ForgotPasswordSerializer
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = ForgotPasswordSerializer(data=request.data)
@@ -339,6 +446,7 @@ class ForgotPasswordAPIView(APIView):
 
 class VerifyOTPAPIView(APIView):
     serializer_class = OTPSerializer
+    permission_classes = [AllowAny]
 
     def post(self, request):
         user_id = request.session.get("reset_user")
@@ -373,6 +481,7 @@ class VerifyOTPAPIView(APIView):
 
 class ResetPasswordAPIView(APIView):
     serializer_class = ResetPasswordSerializer
+    permission_classes = [AllowAny]
 
     def post(self, request):
         user_id = request.session.get("reset_user")

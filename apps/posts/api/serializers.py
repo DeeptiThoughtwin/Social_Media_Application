@@ -24,8 +24,8 @@ class PostSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         files = validated_data.pop("files", [])
-        user = self.context["request"].user
-        post = Post.objects.create(user=user,**validated_data)
+        user = validated_data.pop("user", self.context["request"].user)
+        post = Post.objects.create(user=user, **validated_data)
         for file in files:
             media_type = (
                 "video"

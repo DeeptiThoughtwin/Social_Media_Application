@@ -230,14 +230,40 @@
                     <img src="{% static 'images/default.jpg' %}"
                          class="w-44 h-44 rounded-full object-cover border-[5px] border-pink-500 shadow-lg">
                 {% endif %}
-            </div>          
-            <div class="flex-1">
-                <div class="flex flex-wrap items-center gap-4">
-                    <h1 class="text-3xl font-semibold">{{ user.username }}</h1>
-                    <a href="{% url 'edit_profile' %}"
-                       class="px-5 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 font-medium transition">
-                        Edit Profile
-                    </a>
+                        </div>          
+                        <div class="flex-1">
+                            <div class="flex flex-wrap items-center gap-4">
+                                <h1 class="text-3xl font-semibold">{{ user.username }}</h1>
+                                {% if user.profile.is_verified %}
+
+                <!-- Verified badge -->
+                <span
+                    class="inline-flex items-center justify-center
+                        w-5 h-5 ml-1
+                        bg-blue-500 text-white
+                        rounded-full text-xs font-bold"
+                    title="Verified"
+                >
+                    ✔
+                </span>
+
+            {% else %}
+
+                <!-- Get Verified button -->
+                <a
+                    href="{% url 'payment_page' %}"
+                    class="px-2 py-1 text-center rounded-lg
+                        bg-blue-500 hover:bg-blue-600
+                        text-white font-medium transition"
+                >
+                    <small>Get Verified</small>
+                </a>
+
+            {% endif %}
+
+
+
+                    
                     <button class="text-2xl hover:rotate-90 transition">⚙️</button>
                 </div>
                 <div class="grid grid-cols-3 gap-8 mt-8">

@@ -7,11 +7,12 @@ from datetime import timedelta
 
 class Profile(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name="profile")
-    profile_picture = models.ImageField(upload_to="profile_pictures/")
+    profile_picture = models.ImageField(upload_to="profile_pictures/",blank=True)
     bio = models.TextField(max_length=300,blank=True)
     website = models.URLField(blank=True)
     location = models.CharField(max_length=100,blank=True)
     birth_date = models.DateField(blank=True,null=True)
+    is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -39,13 +40,13 @@ class Follow(models.Model):
 
 
 
-class PasswordResetOTP(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    otp = models.CharField(max_length=6)
-    created_at = models.DateTimeField(auto_now_add=True)
+# class PasswordResetOTP(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     otp = models.CharField(max_length=6)
+#     created_at = models.DateTimeField(auto_now_add=True)
 
-    def is_expired(self):
-        return timezone.now() > self.created_at + timedelta(minutes=10)
+#     def is_expired(self):
+#         return timezone.now() > self.created_at + timedelta(minutes=10)
 
 
 

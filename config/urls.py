@@ -31,6 +31,8 @@ urlpatterns = [
     path('notifications/',include('apps.Notifications.urls')),
     path('stories/',include('apps.Stories.urls')),
     path('comments/',include('apps.comments.urls')),
+    path("payment/",include("apps.payments.urls")),
+
     
     path('api/', include(('apps.Account.api.urls', 'Account'), namespace='account_api')),
     path('posts/api/', include(('apps.posts.api.urls', 'posts'), namespace='posts_api')),

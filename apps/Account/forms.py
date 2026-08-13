@@ -229,36 +229,84 @@ class UserUpdateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["first_name","last_name",]
+        fields = ["first_name", "last_name"]
+
         widgets = {
             "first_name": forms.TextInput(
                 attrs={
-                    "class":"w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500",
-                    "placeholder":"First Name"
+                    "class": (
+                        "w-full rounded-xl border px-4 py-3 "
+                        "focus:ring-2 focus:ring-blue-500"
+                    ),
+                    "placeholder": "First Name",
                 }
             ),
             "last_name": forms.TextInput(
                 attrs={
-                    "class":"w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500",
-                    "placeholder":"Last Name"
-                }
-            ),
-            "email": forms.EmailInput(
-                attrs={
-                    "class":"w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500",
-                    "placeholder":"Email Address"
+                    "class": (
+                        "w-full rounded-xl border px-4 py-3 "
+                        "focus:ring-2 focus:ring-blue-500"
+                    ),
+                    "placeholder": "Last Name",
                 }
             ),
         }
 
-    def clean_email(self):
-        email = self.cleaned_data["email"]
-        qs = User.objects.filter(email=email).exclude(pk=self.instance.pk)
-        if qs.exists():
+class UserUpdateForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name"]
+
+    def clean_first_name(self):
+        first_name = self.cleaned_data["first_name"].strip()
+
+        if not first_name:
             raise forms.ValidationError(
-                "This email is already in use."
+                "First name is required."
             )
-        return email
+
+        if len(first_name) < 2:
+            raise forms.ValidationError(
+                "First name must be at least 2 characters."
+            )
+
+        if first_name[0].isdigit():
+            raise forms.ValidationError(
+                "First name cannot start with a number."
+            )
+
+        if not re.fullmatch(r"[A-Za-z\s'-]+", first_name):
+            raise forms.ValidationError(
+                "First name should contain only letters."
+            )
+
+        return first_name.title()
+
+    def clean_last_name(self):
+        last_name = self.cleaned_data["last_name"].strip()
+
+        if not last_name:
+            raise forms.ValidationError(
+                "Last name is required."
+            )
+
+        if len(last_name) < 2:
+            raise forms.ValidationError(
+                "Last name must be at least 2 characters."
+            )
+
+        if last_name[0].isdigit():
+            raise forms.ValidationError(
+                "Last name cannot start with a number."
+            )
+
+        if not re.fullmatch(r"[A-Za-z\s'-]+", last_name):
+            raise forms.ValidationError(
+                "Last name should contain only letters."
+            )
+
+        return last_name.title()
 
 
 
@@ -304,7 +352,15 @@ class ProfileUpdateForm(forms.ModelForm):
             ),
 
         }
+    def clean_website(self):
+        website = self.cleaned_data.get("website")
 
+        if website and not website.startswith(("http://", "https://")):
+            raise forms.ValidationError(
+                "Website must start with http:// or https://."
+            )
+
+        return website
 
 
 class ForgotPasswordForm(forms.Form):
@@ -329,12 +385,18 @@ class OTPForm(forms.Form):
         "class":"text-red-500 text-sm"
         })
     def clean_otp(self):
-        """Cleans and validates the specific OTP field."""
-        otp = self.cleaned_data.get("otp")
-        
-        if otp and not otp.isdigit():
-            raise forms.ValidationError("The OTP must consist of numbers only.")
-            
+        otp = self.cleaned_data.get("otp", "").strip()
+
+        if not otp.isdigit():
+            raise forms.ValidationError(
+                "The OTP must consist of numbers only."
+            )
+
+        if len(otp) != 6:
+            raise forms.ValidationError(
+                "OTP must contain exactly 6 digits."
+            )
+
         return otp
 
 
@@ -342,13 +404,22 @@ class OTPForm(forms.Form):
 
 
 class ResetPasswordForm(forms.Form):
-    password1 = forms.CharField(widget=forms.PasswordInput)
-    password2 = forms.CharField(widget=forms.PasswordInput)
+
+    password1 = forms.CharField(
+        widget=forms.PasswordInput
+    )
+
+    password2 = forms.CharField(
+        widget=forms.PasswordInput
+    )
 
     def clean(self):
         cleaned = super().clean()
 
-        if cleaned["password1"] != cleaned["password2"]:
+        password1 = cleaned.get("password1")
+        password2 = cleaned.get("password2")
+
+        if password1 and password2 and password1 != password2:
             raise forms.ValidationError("Passwords do not match.")
 
         return cleaned

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Successful</title>
+</head>
+
+<body>
+
+    <h1>Payment Successful </h1>
+
+    <p>Your payment was received.</p>
+
+    {% if session_id %}
+        <p>Session ID: {{ session_id }}</p>
+    {% endif %}
+
+</body>
+</html>

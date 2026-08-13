@@ -14,9 +14,18 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta
+import sentry_sdk
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env", override=True)
+
+
+
+load_dotenv()
+
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -62,6 +71,7 @@ INSTALLED_APPS = [
     'apps.Notifications',
     'apps.Stories',
     'apps.comments',
+    'apps.payments',
     'rest_framework_simplejwt.token_blacklist',
     
 ]
@@ -359,3 +369,45 @@ SPECTACULAR_SETTINGS = {
 }
 
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} {levelname} {name} {message}",
+            "style": "{",
+        },
+    },
+
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "logs" / "django.log",
+            "formatter": "verbose",
+        },
+    },
+
+    "loggers": {
+        "apps": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
+
+
+
+
+sentry_sdk.init(
+    dsn="https://ca7997a2ab70394a9946e3fdd7f74cdd@o4511892375207936.ingest.us.sentry.io/4511892425801728",
+    # Add data like request headers and IP for users,
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+    traces_sample_rate=1.0
+)

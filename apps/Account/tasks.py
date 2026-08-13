@@ -30,7 +30,7 @@ def send_welcome_email(self, username, email):
         )
 
     except Exception as exc:
-        print("Failed! Retrying in 5 seconds...")
+        print("Failed Retrying in 5 seconds...")
 
         raise self.retry(
             exc=exc,
