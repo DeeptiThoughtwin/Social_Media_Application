@@ -3,11 +3,11 @@ name: Django CI
 on:
   push:
     branches:
-      - main
+      - class_based
 
   pull_request:
     branches:
-      - main
+      - class_based
 
 jobs:
   test:
