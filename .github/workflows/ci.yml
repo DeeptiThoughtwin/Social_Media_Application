@@ -120,7 +120,7 @@ jobs:
       # --------------------------------------------------
       - name: Check migrations
         run: |
-          python manage.py showmigrations auth Account
+          python manage.py showmigrations auth user_account
 
 
       # --------------------------------------------------
