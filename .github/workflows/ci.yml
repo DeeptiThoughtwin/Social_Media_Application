@@ -16,12 +16,15 @@ jobs:
     services:
       postgres:
         image: postgres:16
+
         env:
           POSTGRES_DB: test_db
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+
         ports:
           - 5432:5432
+
         options: >-
           --health-cmd="pg_isready -U postgres -d test_db"
           --health-interval=10s
@@ -36,18 +39,101 @@ jobs:
       DB_PORT: 5432
 
     steps:
+
+      # --------------------------------------------------
+      # 1. Checkout repository
+      # --------------------------------------------------
       - name: Checkout code
         uses: actions/checkout@v4
 
+
+      # --------------------------------------------------
+      # 2. Setup Python
+      # --------------------------------------------------
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
+
+      # --------------------------------------------------
+      # 3. Install dependencies
+      # --------------------------------------------------
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+
+      # --------------------------------------------------
+      # 4. Check Python and Django environment
+      # --------------------------------------------------
+      - name: Check environment
+        run: |
+          python --version
+          python -m pytest --version
+          python -m django --version
+
+
+      # --------------------------------------------------
+      # 5. Check database environment variables
+      # --------------------------------------------------
+      - name: Check database environment
+        run: |
+          echo "DB_NAME=$DB_NAME"
+          echo "DB_USER=$DB_USER"
+          echo "DB_HOST=$DB_HOST"
+          echo "DB_PORT=$DB_PORT"
+
+
+      # --------------------------------------------------
+      # 6. Check Django database configuration
+      # --------------------------------------------------
+      - name: Check Django database configuration
+        run: |
+          python manage.py shell -c "
+          from django.conf import settings;
+          db = settings.DATABASES['default'];
+          print('ENGINE:', db.get('ENGINE'));
+          print('NAME:', db.get('NAME'));
+          print('USER:', db.get('USER'));
+          print('HOST:', db.get('HOST'));
+          print('PORT:', db.get('PORT'));
+          "
+
+
+      # --------------------------------------------------
+      # 7. Check PostgreSQL connection
+      # --------------------------------------------------
+      - name: Check PostgreSQL
+        run: |
+          python manage.py check
+          python manage.py shell -c "
+          from django.db import connection;
+          connection.ensure_connection();
+          print('PostgreSQL connection successful');
+          "
+
+
+      # --------------------------------------------------
+      # 8. Check migration status
+      # --------------------------------------------------
+      - name: Check migrations
+        run: |
+          python manage.py showmigrations auth Account
+
+
+      # --------------------------------------------------
+      # 9. Show migration plan
+      # --------------------------------------------------
+      - name: Show migration plan
+        run: |
+          python manage.py migrate --plan
+
+
+      # --------------------------------------------------
+      # 10. Run tests
+      # --------------------------------------------------
       - name: Run tests
-        run: pytest
+        run: |
+          pytest -vv
