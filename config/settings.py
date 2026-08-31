@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'corsheaders',
     'allauth',
-    'allauth.Account',
+    'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
