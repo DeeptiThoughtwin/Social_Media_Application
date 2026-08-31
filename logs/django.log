@@ -1709,3 +1709,124 @@
 2026-08-13 19:04:26,890 INFO apps.posts.views Post detail viewed: post_id=52 user_id=231
 2026-08-13 19:04:28,834 INFO apps.posts.views Post edit authorized: post_id=53 user_id=232
 2026-08-13 19:04:31,733 WARNING apps.posts.views Unauthorized post edit attempt: post_id=54 user_id=234 owner_id=233
+2026-08-31 12:14:26,110 INFO apps.posts.views Post deletion authorized: post_id=1 user_id=1
+2026-08-31 12:18:35,062 INFO apps.posts.views Post deletion authorized: post_id=1 user_id=1
+2026-08-31 12:19:50,216 INFO apps.posts.views Post deletion authorized: post_id=1 user_id=1
+2026-08-31 12:35:33,439 INFO apps.Account.views Home page requested: user_id=51
+2026-08-31 12:35:33,451 INFO apps.Account.views Home page rendered: user_id=51 posts=0 stories=0
+2026-08-31 12:35:35,387 INFO apps.Account.views Home page requested: user_id=52
+2026-08-31 12:35:35,393 INFO apps.Account.views Home page rendered: user_id=52 posts=0 stories=0
+2026-08-31 12:35:37,299 INFO apps.Account.views Home page requested: user_id=53
+2026-08-31 12:35:37,312 INFO apps.Account.views Home page rendered: user_id=53 posts=2 stories=0
+2026-08-31 12:35:40,166 INFO apps.Account.views Home page requested: user_id=54
+2026-08-31 12:35:40,171 INFO apps.Account.views Home page rendered: user_id=54 posts=0 stories=0
+2026-08-31 12:35:43,038 INFO apps.Account.views Home page requested: user_id=56
+2026-08-31 12:35:43,044 INFO apps.Account.views Home page rendered: user_id=56 posts=0 stories=0
+2026-08-31 12:35:45,867 INFO apps.Account.views Home page requested: user_id=58
+2026-08-31 12:35:45,876 INFO apps.Account.views Home page rendered: user_id=58 posts=1 stories=0
+2026-08-31 12:35:47,818 INFO apps.Account.views Home page requested: user_id=60
+2026-08-31 12:35:47,826 INFO apps.Account.views Home page rendered: user_id=60 posts=1 stories=0
+2026-08-31 12:35:47,845 WARNING apps.Account.views Signup validation failed
+2026-08-31 12:35:48,824 INFO apps.Account.views User registered successfully: user_id=61
+2026-08-31 12:35:48,825 INFO apps.Account.views Queueing welcome email: user_id=61
+2026-08-31 12:35:50,718 INFO apps.Account.views User registered successfully: user_id=62
+2026-08-31 12:35:50,719 INFO apps.Account.views Queueing welcome email: user_id=62
+2026-08-31 12:35:51,677 INFO apps.Account.views Home page requested: user_id=62
+2026-08-31 12:35:51,682 INFO apps.Account.views Home page rendered: user_id=62 posts=0 stories=0
+2026-08-31 12:35:52,647 INFO apps.Account.views User registered successfully: user_id=63
+2026-08-31 12:35:52,647 INFO apps.Account.views Queueing welcome email: user_id=63
+2026-08-31 12:35:53,631 INFO apps.Account.views Home page requested: user_id=63
+2026-08-31 12:35:53,637 INFO apps.Account.views Home page rendered: user_id=63 posts=0 stories=0
+2026-08-31 12:35:54,629 WARNING apps.Account.views Login failed: invalid credentials or form data
+2026-08-31 12:35:59,363 INFO apps.Account.views User login successful: user_id=66
+2026-08-31 12:36:02,175 INFO apps.Account.views User login successful: user_id=67
+2026-08-31 12:36:02,181 INFO apps.Account.views Home page requested: user_id=67
+2026-08-31 12:36:02,186 INFO apps.Account.views Home page rendered: user_id=67 posts=0 stories=0
+2026-08-31 12:36:05,037 INFO apps.Account.views User login successful: user_id=68
+2026-08-31 12:36:05,042 INFO apps.Account.views Home page requested: user_id=68
+2026-08-31 12:36:05,048 INFO apps.Account.views Home page rendered: user_id=68 posts=0 stories=0
+2026-08-31 12:36:09,780 INFO apps.Account.views User logout: user_id=70
+2026-08-31 12:36:11,673 INFO apps.Account.views User logout: user_id=71
+2026-08-31 12:36:13,570 INFO apps.Account.views User logout: user_id=72
+2026-08-31 12:36:13,573 WARNING apps.Account.views Login failed: invalid credentials or form data
+2026-08-31 12:36:31,721 WARNING apps.Account.views Profile update validation failed: user_id=83
+2026-08-31 12:36:33,640 WARNING apps.Account.views Profile update validation failed: user_id=84
+2026-08-31 12:36:35,539 INFO apps.Account.views Profile update successful: user_id=85
+2026-08-31 12:36:37,433 INFO apps.Account.views Profile update successful: user_id=86
+2026-08-31 12:36:39,338 INFO apps.Account.views Profile update successful: user_id=87
+2026-08-31 12:37:28,874 INFO apps.Notifications.views Notifications viewed: user_id=136 total=1 marked_as_read=1
+2026-08-31 12:37:31,735 INFO apps.Notifications.views Notifications viewed: user_id=138 total=1 marked_as_read=1
+2026-08-31 12:37:35,520 INFO apps.Notifications.views Notifications viewed: user_id=140 total=1 marked_as_read=1
+2026-08-31 12:37:38,365 INFO apps.Notifications.views Unread notification count requested: user_id=143 count=2
+2026-08-31 12:37:41,192 INFO apps.Notifications.views Unread notification count requested: user_id=145 count=1
+2026-08-31 12:37:43,125 INFO apps.Notifications.views Unread notification count requested: user_id=146 count=0
+2026-08-31 12:39:29,121 INFO apps.Account.views Home page requested: user_id=51
+2026-08-31 12:39:29,132 INFO apps.Account.views Home page rendered: user_id=51 posts=0 stories=0
+2026-08-31 12:39:31,069 INFO apps.Account.views Home page requested: user_id=52
+2026-08-31 12:39:31,075 INFO apps.Account.views Home page rendered: user_id=52 posts=0 stories=0
+2026-08-31 12:39:33,053 INFO apps.Account.views Home page requested: user_id=53
+2026-08-31 12:39:33,064 INFO apps.Account.views Home page rendered: user_id=53 posts=2 stories=0
+2026-08-31 12:39:35,920 INFO apps.Account.views Home page requested: user_id=54
+2026-08-31 12:39:35,926 INFO apps.Account.views Home page rendered: user_id=54 posts=0 stories=0
+2026-08-31 12:39:38,760 INFO apps.Account.views Home page requested: user_id=56
+2026-08-31 12:39:38,765 INFO apps.Account.views Home page rendered: user_id=56 posts=0 stories=0
+2026-08-31 12:39:41,629 INFO apps.Account.views Home page requested: user_id=58
+2026-08-31 12:39:41,637 INFO apps.Account.views Home page rendered: user_id=58 posts=1 stories=0
+2026-08-31 12:39:43,543 INFO apps.Account.views Home page requested: user_id=60
+2026-08-31 12:39:43,551 INFO apps.Account.views Home page rendered: user_id=60 posts=1 stories=0
+2026-08-31 12:39:43,570 WARNING apps.Account.views Signup validation failed
+2026-08-31 12:39:44,547 INFO apps.Account.views User registered successfully: user_id=61
+2026-08-31 12:39:44,547 INFO apps.Account.views Queueing welcome email: user_id=61
+2026-08-31 12:39:46,435 INFO apps.Account.views User registered successfully: user_id=62
+2026-08-31 12:39:46,435 INFO apps.Account.views Queueing welcome email: user_id=62
+2026-08-31 12:39:47,390 INFO apps.Account.views Home page requested: user_id=62
+2026-08-31 12:39:47,396 INFO apps.Account.views Home page rendered: user_id=62 posts=0 stories=0
+2026-08-31 12:39:48,350 INFO apps.Account.views User registered successfully: user_id=63
+2026-08-31 12:39:48,350 INFO apps.Account.views Queueing welcome email: user_id=63
+2026-08-31 12:39:49,299 INFO apps.Account.views Home page requested: user_id=63
+2026-08-31 12:39:49,305 INFO apps.Account.views Home page rendered: user_id=63 posts=0 stories=0
+2026-08-31 12:39:50,297 WARNING apps.Account.views Login failed: invalid credentials or form data
+2026-08-31 12:39:55,038 INFO apps.Account.views User login successful: user_id=66
+2026-08-31 12:39:57,858 INFO apps.Account.views User login successful: user_id=67
+2026-08-31 12:39:57,863 INFO apps.Account.views Home page requested: user_id=67
+2026-08-31 12:39:57,869 INFO apps.Account.views Home page rendered: user_id=67 posts=0 stories=0
+2026-08-31 12:40:00,718 INFO apps.Account.views User login successful: user_id=68
+2026-08-31 12:40:00,724 INFO apps.Account.views Home page requested: user_id=68
+2026-08-31 12:40:00,729 INFO apps.Account.views Home page rendered: user_id=68 posts=0 stories=0
+2026-08-31 12:40:05,439 INFO apps.Account.views User logout: user_id=70
+2026-08-31 12:40:07,325 INFO apps.Account.views User logout: user_id=71
+2026-08-31 12:40:09,236 INFO apps.Account.views User logout: user_id=72
+2026-08-31 12:40:09,239 WARNING apps.Account.views Login failed: invalid credentials or form data
+2026-08-31 12:40:27,318 WARNING apps.Account.views Profile update validation failed: user_id=83
+2026-08-31 12:40:29,223 WARNING apps.Account.views Profile update validation failed: user_id=84
+2026-08-31 12:40:31,137 INFO apps.Account.views Profile update successful: user_id=85
+2026-08-31 12:40:33,041 INFO apps.Account.views Profile update successful: user_id=86
+2026-08-31 12:40:34,954 INFO apps.Account.views Profile update successful: user_id=87
+2026-08-31 12:41:24,666 INFO apps.Notifications.views Notifications viewed: user_id=136 total=1 marked_as_read=1
+2026-08-31 12:41:27,538 INFO apps.Notifications.views Notifications viewed: user_id=138 total=1 marked_as_read=1
+2026-08-31 12:41:31,315 INFO apps.Notifications.views Notifications viewed: user_id=140 total=1 marked_as_read=1
+2026-08-31 12:41:34,154 INFO apps.Notifications.views Unread notification count requested: user_id=143 count=2
+2026-08-31 12:41:36,983 INFO apps.Notifications.views Unread notification count requested: user_id=145 count=1
+2026-08-31 12:41:38,901 INFO apps.Notifications.views Unread notification count requested: user_id=146 count=0
+2026-08-31 12:42:04,463 INFO apps.Stories.views Story created: story_id=7 user_id=172
+2026-08-31 12:42:06,368 INFO apps.Stories.views Add story page viewed: user_id=173
+2026-08-31 12:42:08,257 INFO apps.Stories.views Story list viewed: user_id=174 story_count=1
+2026-08-31 12:42:10,163 INFO apps.Stories.views Story deleted: story_id=9 user_id=175
+2026-08-31 12:42:29,307 INFO apps.comments.views Comments page viewed: post_id=23 user_id=193
+2026-08-31 12:42:31,200 INFO apps.comments.views Comment created: comment_id=13 post_id=24 user_id=194
+2026-08-31 12:42:33,141 INFO apps.comments.views Comment created: comment_id=15 post_id=25 user_id=195
+2026-08-31 12:42:35,061 INFO apps.comments.views Comments page viewed: post_id=26 user_id=196
+2026-08-31 12:42:36,022 WARNING apps.comments.views Unauthenticated comment submission: post_id=27
+2026-08-31 12:42:37,936 INFO apps.comments.views Comment deleted: comment_id=18 post_id=28 user_id=198
+2026-08-31 12:42:40,818 INFO apps.comments.views Comment deleted: comment_id=19 post_id=29 user_id=199
+2026-08-31 12:42:44,586 WARNING apps.comments.views Unauthorized comment deletion attempt: comment_id=20 post_id=30 user_id=203
+2026-08-31 12:43:04,614 INFO apps.posts.views Post created successfully: post_id=47 user_id=223 media_count=1
+2026-08-31 12:43:06,522 WARNING apps.posts.views Post creation failed: no media uploaded, user_id=224
+2026-08-31 12:43:08,458 WARNING apps.posts.views Post creation failed: unsupported file type user_id=225 file=file.svg content_type=image/svg+xml
+2026-08-31 12:43:10,345 INFO apps.posts.views Post deletion authorized: post_id=48 user_id=226
+2026-08-31 12:43:13,198 WARNING apps.posts.views Unauthorized post deletion attempt: post_id=49 user_id=228 owner_id=227
+2026-08-31 12:43:15,094 INFO apps.posts.views Post liked: post_id=50 user_id=229
+2026-08-31 12:43:16,994 INFO apps.posts.views Post unliked: post_id=51 user_id=230
+2026-08-31 12:43:18,915 INFO apps.posts.views Post detail viewed: post_id=52 user_id=231
+2026-08-31 12:43:20,826 INFO apps.posts.views Post edit authorized: post_id=53 user_id=232
+2026-08-31 12:43:23,676 WARNING apps.posts.views Unauthorized post edit attempt: post_id=54 user_id=234 owner_id=233
